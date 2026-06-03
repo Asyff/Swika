@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    
+
+    <section  id="page-header">
+
+       <h2>SHOP NOW!<h2>
+       
+       <p>Save more with a discount of 20%!</p>
+       
+    </section>
+
+    
+    
+
+    <section id="product1" class="section-p1">
+        
+
+           <div class="product-container">
+
+           {% for cat in search_products %}
+           <div class="product">
+           <img src={{cat.img.url}} alt=""></img>
+           <div class="description">
+           <span>{{cat.brand}}</span>
+           <h5>{{cat.name}}<h5>
+           <div class="star">
+           <i class="fas fa-star"></i>
+           <i class="fas fa-star"></i>
+           <i class="fas fa-star"></i>
+           <i class="fas fa-star"></i>
+           <i class="fas fa-star"></i>
+           </div>
+
+           <h4>{{cat.price}}</h4>
+
+           </div>
+
+           <a href="#"><i class="fa-solid fa-cart-shopping carts"></i></a>
+           
+           </div>
+
+             {% endfor %}
+
+           
+    
+
+    </section >
+    
+    <section id="pagination" class="section-p1">
+      <a href="#">1</a>
+      <a href="#">2</a>
+      <a href="#"><i class="fa-solid fa-arrow-right"></i></a>
+
+    </section>
+   
+  {% endblock%}

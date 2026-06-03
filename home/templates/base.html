@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html lang="en">
+
+
+<head>
+    <meta charset = "UTF-8">
+    <meta http-equiv = "X-UA-Compatible" content="IE-edge">
+    <meta name = "viewport" content = "width-device-width, initial-scale=1.0">
+    <title>Swika</title>
+    <link rel="stylesheet"  href="{% static 'Electronic.css' %}">
+    <link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+</head>
+
+    <body>
+    
+    
+    {% block content %}
+    
+    {% endblock  %}
+    
+
+
+   <section id="newsletter" class="section-p1 section-m1">
+      <div class="newstext">
+        <h4>Sign Up for Newsletters</h4>
+        <p>Get E-mail updates about our <span>latest products.</span></p>
+      </div>
+
+       <div class="form">
+          <input type="text" placeholder="Type your email address">
+          <button class="normal">Sign Up</button>
+   </section>
+
+    <footer class="section-p1">
+       <div class="col">
+       <img class="logo" src="static/img/swika.png" alt="SwikaLogo"></img>
+       <h4>Contact</h4>
+       <p><strong>Address:</strong> Patan, Lalitpur, Ward no 20</p>
+       <p><strong>Phone:</strong> 9820108493/01-5533660</p>
+       <p><strong>Hours</strong> 8:00-18:00, Sun-Fri</p>
+       <div class="follow">
+       <h4>Follow us</h4>
+       <div class="icon">
+         <i class="fab fa-facebook"></i>
+         <i class="fab fa-twitter"></i>
+         <i class="fab fa-instagram"></i>
+         <i class="fab fa-youtube"></i>
+       </div>
+       </div>
+       </div>
+
+       <div class="col">
+       <h4>About</h4>
+       <a href="#">About Us</a>
+       <a href="#">Delivery Information</a>
+       <a href="#">Private Policy</a>
+       <a href="#">Terms and Conditions</a>
+       <a href="#">Contact Us</a>
+       </div>
+
+       <div class="col">
+       <h4>My Account</h4>
+       <a href="#">Sign In</a>
+       <a href="#">View Cart</a>
+       <a href="#">My Wishlist</a>
+       <a href="#">Track My Order</a>
+       <a href="#">Help</a>
+       </div>
+       <div class="copyright">
+        <p>@ 2024 Swika - 3408 304834 349034</p>
+       </div>
+
+    </footer>
+    <script src="{% static 'Website.js' %}"></script>  
+    </body>
+</html>
+

@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+
+    <section id="header">
+      <a href = "#"><img src="static/img/swika.png" class="logo" alt="logo"></a>
+      <div>
+      <ul id="navbar">
+        
+        <li ><a class="active" href="{% url 'home' %}">Home</a></li>
+        <li ><a href="{% url 'category_summary' %}">Shop</a></li>
+        <div class = "dropdown">
+          <button>Category</i></button>
+          <div class = "dropdown-menu">
+            <a href="{% url 'category' 'Bag' %}" class="dropdown-items">bag</a>
+            <a href="{% url 'category' 'Mask' %}" class="dropdown-items">mask</a>
+          </div>
+        </div>
+        <li ><a href="{% url 'blog' %}">Blog</a></li>
+        <li ><a href="{% url 'about' %}">About Us</a></li>
+        <li ><a href="{% url 'contact' %}">Contact</a></li>
+        <li id="lg-bag"><a href="{% url 'cart_summary' %}"><img src="static/img/ShopingCart.png" class="shop-bag" alt="cart" height="20" width="20"></a><button> <span class="quantity" id="cart_quantity">{{cart|length}}<span></button></li>
+         
+        <a href="#" id="close"><i class="fas fa-window-close">X</i></a>
+        <form action = "/search" method="GET">
+        <input name= "query" type="text" placeholder="Search" class="search">
+        <button type="submit" id="find"><img src="static/img/magnifying-glass.png" alt="cart" height="20" width="20"></i></button>
+        </form>
+
+        {% if user.is_authenticated %}
+        
+        <div class = "dropdown">
+          <button>{{user.username}}</i></button>
+          <div class = "dropdown-menu">
+             <a href="{% url 'update_user' %}" class="dropdown-items">Profile</a>
+            <form method="POST" action="{% url 'logout' %}">
+              {% csrf_token %}
+            <a href="{% url 'logout' %}" class="dropdown-items">Logout</a>
+            </form>
+
+          </div>
+        </div>
+
+        {% else %}
+
+        <div class = "dropdown">
+          <button>User</i></button>
+          <div class = "dropdown-menu">
+            <a href="{% url 'login' %}" class="dropdown-items">Login</a>
+            <a href="{% url 'register'%}" class="dropdown-items">Register</a>
+          </div>
+        </div>
+
+        {% endif %}
+        
+        
+      </ul>
+    
+     </div>
+
+     <div id="mobile">
+        <a href="#"><i class="fa-solid fa-cart-shopping"></i>III</a>
+        <i id="bar" class="fas fa-outdent">Nav</i>
+     </div>
+
+    </section >
+    
+
+    <section  id="Sale">
+
+     <h4>On Sale!</h4>
+    <h2>Tremendous Value!<h2>
+    <h1>On Our Products</h1>
+    <p>Save more with a discount of 20%!</p>
+    <button>Shop Now</button>
+
+    </section>
+
+    
+    <section id="feature" class="section-p1">
+    <div class="fe-box">
+    <img src="static/img/Delivery.png" alt=""></img>
+    <h6>Delivery<h6>
+    
+    </div>
+
+    <div class="fe-box">
+    <img src="static/img/Delivery.png" alt=""></img>
+    <h6>Online Order <h6>
+    
+    </div>
+
+    <div class="fe-box">
+    <img src="static/img/Delivery.png" alt=""></img>
+    <h6>Save Money<h6>
+    
+    </div>
+
+    <div class="fe-box">
+    <img src="static/img/Delivery.png" alt=""></img>
+    <h6>Discounts<h6>
+    
+    </div>
+
+    <div class="fe-box">
+    <img src="static/img/Delivery.png" alt=""></img>
+    <h6>Affordable<h6>
+    
+    </div>
+
+    <div class="fe-box">
+    <img src="static/img/Delivery.png" alt=""></img>
+    <h6>Customer Support<h6>
+    
+    </div>
+
+    </section>
+
+    <section id="product1" class="section-p1">
+     
+     <h2>Featured Products</h2>
+     <p>Popular Bags</p>
+
+     <div class="product-container">
+
+     {% for product in products %}
+        <div class="product">
+            <img src="{{product.image.url}}" alt=""></img>
+            <div class="description">
+               <span>{{product.brand}}</span>
+               <a href ="{% url 'product' product.id %}"><h5>{{product.name}}<h5></a>
+             <div class="star">
+               <i class="fas fa-star"></i>
+               <i class="fas fa-star"></i>
+               <i class="fas fa-star"></i>
+               <i class="fas fa-star"></i>
+               <i class="fas fa-star"></i>
+             </div>
+
+            <h4>{{product.price}}</h4>
+
+             </div>
+
+            <a href="/add_to_cart/{{product.slug}}"><i class="fa-solid fa-cart-shopping carts"></i></a>
+
+          </div>
+     {% endfor %}
+       
+
+       
+     </div>
+    
+
+    </section >
+
+     <section id="product1" class="section-p1">
+     
+     <h2>New Products</h2>
+     <p>Newly designed Bags</p>
+
+     <div class="product-container">
+
+     {% for product in products %}
+        <div class="product">
+            <img src="{{product.image.url}}" alt=""></img>
+            <div class="description">
+               <span>{{new.brand}}</span>
+              <a href ="{% url 'product' product.id %}"> <h5>{{product.name}}<h5></a>
+             <div class="star">
+               <i class="fas fa-star"></i>
+               <i class="fas fa-star"></i>
+               <i class="fas fa-star"></i>
+               <i class="fas fa-star"></i>
+               <i class="fas fa-star"></i>
+             </div>
+
+            <h4>{{product.price}}</h4>
+
+             </div>
+
+            <a href="/add_to_cart/{{product.slug}}"><i class="fa-solid fa-cart-shopping carts"></i></a>
+
+          </div>
+     {% endfor %}
+       
+
+       
+     </div>
+    
+
+    </section >
+    
+    
+
+   <section id="banner3">
+
+   <div class="banner-box">
+        <h2>Seasonal Sale</h2>
+        <h3>Winter Collection -30%off</h3>
+   </div>
+
+   <div class="banner-box banner-box2 ">
+        <h2>New Bag Collection</h2>
+        <h3>Spring 2024</h3>
+   </div>
+
+   <div class="banner-box banner-box3 ">
+        <h2>HandBags</h2>
+        <h3>New Trendy Prints</h3>
+   </div>
+
+   </section>
+
+  {% endblock%}

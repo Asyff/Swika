@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    
+    
+
+    <section  id="page-header" class="cart-header">
+
+       <h2>Cart<h2>
+       
+       <p>Proceed to Check Out</p>
+       
+    </section>
+
+     <section  id="cart" class="section-p1">
+
+        <table width="100%">
+          <thead>
+            <tr>
+             <td>Remove</td>
+             <td>Image</td>
+             <td>Product</td>
+             <td>Price</td>
+             <td>Quantity</td>
+             <td>Subtotal</td>
+            </tr>
+          </thead>
+
+          {% for cart in my_cart %}
+          <tbody>
+            <td><a href="/delete_cart/{{cart.slug}}">remove</i></a></td>
+            <td><img src ="{{cart.items.image.url}}" alt="image"></img></td>
+            <td>{{cart.items.name}}</td>
+
+            {% if cart.items.discunted_price > 0 %}
+
+            <td>{{cart.items.discounted_price}}</td>
+            {% else %}
+
+            <td>{{cart.items.price}}</td>
+
+            {% endif %}
+
+            <td><div class = "qty">
+              <a href="/reduce_cart/{{cart.slug}}"><button class = "btn-minus"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 10h24v4h-24z"/></svg><button></a>
+                <input type="number" value = "{{cart.quantity}}">
+              <a href="/add_to_cart/{{cart.slug}}"><button class = "btn-plus"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 2c5.514 0 10 4.486 10 10s-4.486 10-10 10-10-4.486-10-10 4.486-10 10-10zm0-2c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6 13h-5v5h-2v-5h-5v-2h5v-5h2v5h5v2z"/></svg></button></a>
+            </div></td>
+
+              <td>{{cart.total}}</td>
+            
+          </tbody>
+
+          
+          {% endfor %}
+
+        </table>
+       
+    </section>
+
+    <section id="cart-add" class="section-p1">
+        <div id="coupon">
+        <h3>Apply Coupon</h3>
+          <div>
+            <input type="text" placeholder="Enter your Coupon">
+            <button >Apply</button>
+        </div>
+        </div>
+
+        <div id="subtotal">
+          <h3>Cart Totals</h3>
+            <table>
+              <tr>
+                <td>Cart Subtotal</td>
+                <td>Rs. {{all_total}}</td>
+              </tr>
+
+              <tr>
+                <td>Shipping</td>
+                <td>Rs.50</td>
+                
+              </tr>
+
+              <tr>
+                <td><strong>Total</strong></td>
+                <td><strong>Rs.{{grand_total}}</strong></td>
+                
+                
+              </tr>
+            </table>
+            <button> Check Out</button>
+        </div>
+
+    </section>
+    
+  {% endblock%}

@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+
+    <section id="header">
+      <a href = "#"><img src="static/img/SwikaLogo.png" class="logo" alt="logo"></a>
+      <div>
+      <ul id="navbar">
+        
+        <li ><a  href="{% url 'home' %}">Home</a></li>
+        <li ><a href="{% url 'shop' %}">Shop</a></li>
+        <div class = "dropdown">
+          <button>Category</i></button>
+          <div class = "dropdown-menu">
+            <a href="{% url 'category' 'bag' %}" class="dropdown-items">bag</a>
+            <a href="{% url 'category' 'mask' %}" class="dropdown-items">mask</a>
+          </div>
+        </div>
+        <li ><a class="active" href="{% url 'blog' %}">Blog</a></li>
+        <li ><a href="{% url 'about' %}">About Us</a></li>
+        <li ><a href="{% url 'contact' %}">Contact</a></li>
+        <li id="lg-bag"><a href="{% url 'cart_summary' %}"><img src="static/img/ShopingCart.png" alt="cart" height="20" width="20"></a></li>
+        <a href="#" id="close"><i class="fas fa-window-close"></i></a>
+        <form action = "/search" method="GET">
+        <input name= "query" type="text" placeholder="Search" class="search">
+        <button type="submit" id="find"><img src="static/img/magnifying-glass.png" alt="cart" height="20" width="20"></i></button>
+        </form>
+
+        {% if user.is_authenticated %}
+        
+        <div class = "dropdown">
+          <button>{{user.username}}</i></button>
+          <div class = "dropdown-menu">
+            <form method="POST" action="{% url 'logout' %}">
+              {% csrf_token %}
+            <a href="{% url 'logout' %}" class="dropdown-items">Logout</a>
+            </form>
+          </div>
+        </div>
+
+        {% else %}
+
+        <div class = "dropdown">
+          <button>User</i></button>
+          <div class = "dropdown-menu">
+            <a href="{% url 'login' %}" class="dropdown-items">Login</a>
+            <a href="{% url 'register'%}" class="dropdown-items">Register</a>
+          </div>
+        </div>
+
+        {% endif %}
+        
+        
+      </ul>
+    
+     </div>
+
+     <div id="mobile">
+        <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i></a>
+        <i id="bar" class="fas fa-outdent"></i>
+     </div>
+
+    </section >
+    
+    
+
+    <section  id="page-header" class="blog-header">
+
+       <h2>Our Blog<h2>
+       
+       <p>Learn about all our products</p>
+       
+    </section>
+
+    
+    <section id="blog">
+        <div class="blog-box">
+          <div class="blog-img">
+            <img src="img/bag1.png"></img>
+          </div>
+           <div class="blog-details">
+          <h4>The cotton bag</h4>
+          <p>something is something, nothing is nothing
+          something is something, nothing is nothing
+          something is something, nothing is nothing
+          something is something, nothing is nothing</p>
+          <a href="#">Continue Reading</a>
+          </div>
+            <h1>13/01</h1>
+        </div>
+
+        <div class="blog-box">
+          <div class="blog-img">
+            <img src="img/bag1.png"></img>
+          </div>
+           <div class="blog-details">
+          <h4>The cotton bag</h4>
+          <p>something is something, nothing is nothing
+          something is something, nothing is nothing
+          something is something, nothing is nothing
+          something is something, nothing is nothing</p>
+          <a href="#">Continue Reading</a>
+          </div>
+            <h1>13/01</h1>
+        </div>
+
+        <div class="blog-box">
+          <div class="blog-img">
+            <img src="img/bag1.png"></img>
+          </div>
+           <div class="blog-details">
+          <h4>The cotton bag</h4>
+          <p>something is something, nothing is nothing
+          something is something, nothing is nothing
+          something is something, nothing is nothing
+          something is something, nothing is nothing</p>
+          <a href="#">Continue Reading</a>
+          </div>
+            <h1>13/01</h1>
+        </div>
+
+        <div class="blog-box">
+          <div class="blog-img">
+            <img src="img/bag1.png"></img>
+          </div>
+           <div class="blog-details">
+          <h4>The cotton bag</h4>
+          <p>something is something, nothing is nothing
+          something is something, nothing is nothing
+          something is something, nothing is nothing
+          something is something, nothing is nothing</p>
+          <a href="#">Continue Reading</a>
+          </div>
+            <h1>13/01</h1>
+        </div>
+    </section>
+
+    
+    
+    <section id="pagination" class="section-p1">
+      <a href="#">1</a>
+      <a href="#">2</a>
+      <a href="#"><i class="fa-solid fa-arrow-right"></i></a>
+
+    </section>
+
+    {% endblock%}
+   
+   

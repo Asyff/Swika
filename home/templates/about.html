@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<section id="header">
+      <a href = "#"><img src="static/img/SwikaLogo.png" class="logo" alt="logo"></a>
+      <div>
+      <ul id="navbar">
+        
+        <li ><a  href="{% url 'home' %}">Home</a></li>
+        <li ><a href="{% url 'shop' %}">Shop</a></li>
+        <div class = "dropdown">
+          <button>Category</i></button>
+          <div class = "dropdown-menu">
+            <a href="{% url 'category' 'bag' %}" class="dropdown-items">bag</a>
+            <a href="{% url 'category' 'mask' %}" class="dropdown-items">mask</a>
+          </div>
+        </div>
+        <li ><a href="{% url 'blog' %}">Blog</a></li>
+        <li ><a class="active" href="{% url 'about' %}">About Us</a></li>
+        <li ><a href="{% url 'contact' %}">Contact</a></li>
+        <li id="lg-bag"><a href="{% url 'cart_summary' %}"><img src="static/img/ShopingCart.png" alt="cart" height="20" width="20"></a></li>
+        <a href="#" id="close"><i class="fas fa-window-close"></i></a>
+        <form action = "/search" method="GET">
+        <input name= "query" type="text" placeholder="Search" class="search">
+        <button type="submit" id="find"><img src="static/img/magnifying-glass.png" alt="cart" height="20" width="20"></i></button>
+        </form>
+
+        {% if user.is_authenticated %}
+        
+        <div class = "dropdown">
+          <button>{{user.username}}</i></button>
+          <div class = "dropdown-menu">
+            <form method="POST" action="{% url 'logout' %}">
+              {% csrf_token %}
+            <a href="{% url 'logout' %}" class="dropdown-items">Logout</a>
+            </form>
+          </div>
+        </div>
+
+        {% else %}
+
+        <div class = "dropdown">
+          <button>User</i></button>
+          <div class = "dropdown-menu">
+            <a href="{% url 'login' %}" class="dropdown-items">Login</a>
+            <a href="{% url 'register'%}" class="dropdown-items">Register</a>
+          </div>
+        </div>
+
+        {% endif %}
+        
+        
+      </ul>
+    
+     </div>
+
+     <div id="mobile">
+        <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i></a>
+        <i id="bar" class="fas fa-outdent"></i>
+     </div>
+
+    </section >
+    
+
+
+
+
+    <section  id="page-header" class="about-header">
+
+       <h2>About Us<h2>
+       
+       <p>Learn about us</p>
+       
+    </section>
+
+    
+   
+    
+    <section id="about-head" class="section-p1">
+      <img src="img/aboutImage.jpg" alt=""></img>
+      <div>
+        <h2>Who are we, you ask?</h2>
+        <p>We are no one. You are no one. All of us are no one.
+        We are no one. You are no one. All of us are no one
+        We are no one. You are no one. All of us are no one
+        We are no one. You are no one. All of us are no one
+        We are no one. You are no one. All of us are no one
+        We are no one. You are no one. All of us are no one</p>
+      </div>
+      <abbr title="Creating nothing and be nothing"></abbr>
+
+      <marquee behaviour="" direction="">Absolutely nothing. Nothing at all.</marquee>
+
+    </section>
+
+    <section id="about-app" class="section=p1">
+       <h1>See our<a href="#"> Video </a><h1>
+       <div class="video">
+           <video autoplay muted loop src="img/videopromotion.mp4"></video>
+       </div>
+    </section>
+    
+ {% endblock%}
