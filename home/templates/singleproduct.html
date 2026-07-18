@@ -109,7 +109,7 @@
           </select>
 
           <input type="number" value="1">
-          <button class="active" type ="button" value="{{product.id}}" id="addcart">Add to Cart</button>
+          <button class="active" type ="button" value="{{product.id}}" id="add-cart">Add to Cart</button>
           <h6>Product Details</h6>
           <span>{{product.description}}</span>
        
@@ -120,39 +120,19 @@
    
   
     <script>
-        var BigImg = document.getElementbyId("BigImg");
-        var smallimg = document.getElementsbyClassName("smallimg");
-    
-        smallimg[0].onclick = function(){
-            BigImg.src= smallimg[0].src;
-        }
-    
-        smallimg[1].onclick = function(){
-            BigImg.src = smallimg[1].src;
-        }
-    
-        smallimg[2].onclick = function(){
-            BigImg.src = smallimg[2].src;
-        }
-    
-        smallimg[3].onclick = function(){
-           BigImg.src= smallimg[3].src;
-
-
-        }
+       
 
 
 
 
-
-        $(document).on('click', '#addcart', function(e){
+        $(document).on('click', '#add-cart', function(e){
           e.preventDefault();
           $.ajax({
 
                type:'POST',
-               url = '{% url 'cart_add' %}',
+               url : '{% url 'cart_add' %}',
                data:{
-                product_id: $('#addcart').val(),
+                product_id: $('#add-cart').val(),
                 csrfmiddlewaretoken:'{{csrf_token}}',
                 action: 'post'
                },
