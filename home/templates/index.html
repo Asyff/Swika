@@ -20,7 +20,7 @@
         <li ><a href="{% url 'blog' %}">Blog</a></li>
         <li ><a href="{% url 'about' %}">About Us</a></li>
         <li ><a href="{% url 'contact' %}">Contact</a></li>
-        <li id="lg-bag"><a href="{% url 'cart_summary' %}"><img src="static/img/ShopingCart.png" class="shop-bag" alt="cart" height="20" width="20"></a><button> <span class="quantity" id="cart_quantity">{{cart|length}}<span></button></li>
+        <li id="lg-bag"><a href="{% url 'cart_summary' %}"><img src="static/img/ShopingCart.png" class="shop-bag" alt="cart" height="20" width="20"></a><button> <span class="quantity" id="cart_quantity">{{ cart|length }}<span></button></li>
          
         <a href="#" id="close"><i class="fas fa-window-close">X</i></a>
         <form action = "/search" method="GET">
