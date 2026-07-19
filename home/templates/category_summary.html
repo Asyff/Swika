@@ -10,13 +10,6 @@
         
         <li ><a class="active" href="{% url 'home' %}">Home</a></li>
         <li ><a href="{% url 'category_summary' %}">Shop</a></li>
-        <div class = "dropdown">
-          <button>Category</i></button>
-          <div class = "dropdown-menu">
-            <a href="{% url 'category' 'Bag' %}" class="dropdown-items">bag</a>
-            <a href="{% url 'category' 'Mask' %}" class="dropdown-items">mask</a>
-          </div>
-        </div>
         <li ><a href="{% url 'blog' %}">Blog</a></li>
         <li ><a href="{% url 'about' %}">About Us</a></li>
         <li ><a href="{% url 'contact' %}">Contact</a></li>
