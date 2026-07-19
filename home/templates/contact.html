@@ -4,7 +4,7 @@
     
 
   <section id="header">
-      <a href = "#"><img src="static/img/swika.png" class="logo" alt="logo"></a>
+      <a href = "{% url 'home' %}"><img src="{% static '/img/swika.png' %}" class="logo" alt="logo"></a>
       <div>
       <ul id="navbar">
         
@@ -13,12 +13,12 @@
         <li ><a href="{% url 'blog' %}">Blog</a></li>
         <li ><a href="{% url 'about' %}">About Us</a></li>
         <li ><a href="{% url 'contact' %}">Contact</a></li>
-        <li id="lg-bag"><a href="{% url 'cart_summary' %}"><img src="static/img/ShopingCart.png" class="shop-bag" alt="cart" height="20" width="20"></a><button> <span class="quantity" id="cart_quantity">{{ cart|length }}<span></button></li>
+        <li id="lg-bag"><a href="{% url 'cart_summary' %}"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a><button> <span class="quantity" id="cart_quantity">{{ cart|length }}<span></button></li>
          
-        <a href="#" id="close"><i class="fas fa-window-close">X</i></a>
+        <a href="#" id="close"><i class="fa fa-window-close-o" aria-hidden="true"></i></a>
         <form action = "/search" method="GET">
         <input name= "query" type="text" placeholder="Search" class="search">
-        <button type="submit" id="find"><img src="static/img/magnifying-glass.png" alt="cart" height="20" width="20"></i></button>
+        <button type="submit" id="find"><i class="fa fa-search" aria-hidden="true"></i></button>
         </form>
 
         {% if user.is_authenticated %}
@@ -38,7 +38,7 @@
         {% else %}
 
         <div class = "dropdown">
-          <button>User</i></button>
+          <button><i class="fa fa-user" aria-hidden="true"></i></button>
           <div class = "dropdown-menu">
             <a href="{% url 'login' %}" class="dropdown-items">Login</a>
             <a href="{% url 'register'%}" class="dropdown-items">Register</a>
@@ -53,12 +53,11 @@
      </div>
 
      <div id="mobile">
-        <a href="#"><i class="fa-solid fa-cart-shopping"></i>III</a>
-        <i id="bar" class="fas fa-outdent">Nav</i>
+        <a href="#"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+        <i class="fa fa-bars" aria-hidden="true"></i>
      </div>
 
     </section >
-    
 
     <section  id="page-header" class="contact-header">
 

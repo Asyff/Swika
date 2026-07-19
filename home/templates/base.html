@@ -11,6 +11,7 @@
     <title>Swika</title>
     <link rel="stylesheet"  href="{% static 'Electronic.css' %}">
     <link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 
 </head>
@@ -37,7 +38,7 @@
 
     <footer class="section-p1">
        <div class="col">
-       <img class="logo" src="static/img/swika.png" alt="SwikaLogo"></img>
+       <img class="logo" src="{% static '/img/swika.png' %}" alt="SwikaLogo"></img>
        <h4>Contact</h4>
        <p><strong>Address:</strong> Patan, Lalitpur, Ward no 20</p>
        <p><strong>Phone:</strong> 9820108493/01-5533660</p>
@@ -45,10 +46,10 @@
        <div class="follow">
        <h4>Follow us</h4>
        <div class="icon">
-         <i class="fab fa-facebook"></i>
-         <i class="fab fa-twitter"></i>
-         <i class="fab fa-instagram"></i>
-         <i class="fab fa-youtube"></i>
+         <i class="fa fa-facebook-official" aria-hidden="true" style="font-size: 30px;"></i>
+         <i class="fa fa-twitter-square" aria-hidden="true" style="font-size: 30px;"></i>
+         <i class="fa fa-instagram" aria-hidden="true" style="font-size: 30px;"></i>
+         <i class="fa fa-youtube-play" aria-hidden="true" style="font-size: 30px;"></i>
        </div>
        </div>
        </div>
@@ -75,6 +76,7 @@
        </div>
 
     </footer>
+
     <script src="{% static 'Website.js' %}"></script>  
     </body>
 </html>
