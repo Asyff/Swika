@@ -54,27 +54,52 @@
 
      <div id="mobile">
         <a href="#"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
-        <i class="fa fa-bars" aria-hidden="true"></i>
+        <i  id="bar" class="fa fa-bars" aria-hidden="true"></i>
      </div>
 
     </section >
-    
 
-    <section id="banner3">
-        {% for category in categories %}
+    <br>
+        <br>
 
-   <a href="{% url 'category' category %}">
+    <section  id="page-header" class="category-header">
+
+       <h2>Category<h2>
+       
+      
+       
+    </section>
+                      
+
+    <section id="product1">
+
     
-     <div class="banner-box4">
-    
-        
+     <div class="product-container">
+
+       {% for category in categories %}
+      
+
+       <div class="product">
+        <a href="{% url 'category' category %}">
+           <img src="{{category.image.url}}" alt=""></img>
+           <div class="description">
+           <span>Swika</span>
+           <h5>{{category.name}}</h5>
+         </a>
+         
+           </div>
+
+          
+
+        </div>
+              {% endfor %}
+
      </div>
      
-    <h3>{{category.name}}</h3>
 
-   </a>
+  
 
-        {% endfor %}
+      
 
    
 

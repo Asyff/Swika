@@ -13,7 +13,7 @@
         <li ><a href="{% url 'blog' %}">Blog</a></li>
         <li ><a href="{% url 'about' %}">About Us</a></li>
         <li ><a href="{% url 'contact' %}">Contact</a></li>
-        <li id="lg-bag"><a href="{% url 'cart_summary' %}"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a><button> <span class="quantity" id="cart_quantity">{{ cart|length }}<span></button></li>
+        <li id="lg-bag"><a href="{% url 'cart_summary' %}"><i style="font-size: 30px;" class="fa fa-shopping-cart" aria-hidden="true"></i></a><button> <span class="quantity" id="cart_quantity">{{ cart|length }}<span></button></li>
          
         <a href="#" id="close"><i class="fa fa-window-close-o" aria-hidden="true"></i></a>
         <form action = "/search" method="GET">
@@ -53,8 +53,11 @@
      </div>
 
      <div id="mobile">
-        <a href="#"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
-        <i id="bar" class="fa fa-bars" aria-hidden="true"></i>
+      
+         <a href="{% url 'cart_summary' %}"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a><button> <span class="quantity" id="cart_quantity">{{ cart|length }}<span></button>
+         <i id="bar" class="fa fa-bars" aria-hidden="true"></i>
+        
+
      </div>
 
     </section>
@@ -83,16 +86,6 @@
     <h6>Online Order <h6>
     
     </div>
-
-    <div class="fe-box">
-    <img src="static/img/Delivery.png" alt=""></img>
-    <h6>Save Money<h6>
-    
-    </div>
-
-    <div class="fe-box">
-    <img src="static/img/Delivery.png" alt=""></img>
-    <h6>Discounts<h6>
     
     </div>
 
@@ -102,11 +95,6 @@
     
     </div>
 
-    <div class="fe-box">
-    <img src="static/img/Delivery.png" alt=""></img>
-    <h6>Customer Support<h6>
-    
-    </div>
 
     </section>
 
@@ -124,18 +112,18 @@
                <span>{{product.brand}}</span>
                <a href ="{% url 'product' product.id %}"><h5>{{product.name}}<h5></a>
              <div class="star">
-               <i class="fas fa-star"></i>
-               <i class="fas fa-star"></i>
-               <i class="fas fa-star"></i>
-               <i class="fas fa-star"></i>
-               <i class="fas fa-star"></i>
+               <i class="fa fa-star" aria-hidden="true"></i>
+               <i class="fa fa-star" aria-hidden="true"></i>
+               <i class="fa fa-star" aria-hidden="true"></i>
+               <i class="fa fa-star" aria-hidden="true"></i>
+               <i class="fa fa-star" aria-hidden="true"></i>
              </div>
 
             <h4>{{product.price}}</h4>
 
              </div>
 
-            <a href="/add_to_cart/{{product.slug}}"><i class="fa-solid fa-cart-shopping carts"></i></a>
+            <a href="/add_to_cart/{{product.slug}}"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
 
           </div>
      {% endfor %}
@@ -161,18 +149,18 @@
                <span>{{new.brand}}</span>
               <a href ="{% url 'product' product.id %}"> <h5>{{product.name}}<h5></a>
              <div class="star">
-               <i class="fas fa-star"></i>
-               <i class="fas fa-star"></i>
-               <i class="fas fa-star"></i>
-               <i class="fas fa-star"></i>
-               <i class="fas fa-star"></i>
+             <i class="fa fa-star" aria-hidden="true"></i>
+             <i class="fa fa-star" aria-hidden="true"></i>
+             <i class="fa fa-star" aria-hidden="true"></i>
+             <i class="fa fa-star" aria-hidden="true"></i>
+             <i class="fa fa-star" aria-hidden="true"></i>
              </div>
 
             <h4>{{product.price}}</h4>
 
              </div>
 
-            <a href="/add_to_cart/{{product.slug}}"><i class="fa-solid fa-cart-shopping carts"></i></a>
+            <a href="/add_to_cart/{{product.slug}}"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
 
           </div>
      {% endfor %}
