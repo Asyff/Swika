@@ -16,10 +16,7 @@
         <li id="lg-bag"><a href="{% url 'cart_summary' %}"><i style="font-size: 30px;" class="fa fa-shopping-cart" aria-hidden="true"></i></a><button> <span class="quantity" id="cart_quantity">{{ cart|length }}<span></button></li>
          
         <a href="#" id="close"><i class="fa fa-window-close-o" aria-hidden="true"></i></a>
-        <form action = "/search" method="GET">
-        <input name= "query" type="text" placeholder="Search" class="search">
-        <button type="submit" id="find"><i class="fa fa-search" aria-hidden="true"></i></button>
-        </form>
+       
 
         {% if user.is_authenticated %}
         

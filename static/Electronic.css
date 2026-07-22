@@ -16,7 +16,7 @@ img, video, iframe {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-family: 'Pacifico', cursive;
 }
 
 h1{
@@ -669,17 +669,26 @@ footer .copyright{
     text-align: center;
 }
 
-@media (max-width: 767px){
+@media (360px <= width <= 767px){
+
+    *{
+        box-sizing: border-box;
+        max-width: 100%;
+
+    }
+
+
     
 
     #navbar{ display:flex;
              flex-direction: column;
              align-items: flex-start;
              justify-content: flex-start;
+           
              position: fixed;
              top: 0;
-             right: -400px;
-             width: 400px;
+             right: -30rem;
+             width: 20rem;
              height: auto;
              background-color: #E3E6F3;
              box-shadow: 0 40px 60px rgba(0, 0, 0, 0.1);
@@ -688,13 +697,15 @@ footer .copyright{
     }
 
     #navbar.active{
-        right: 0px;
+        right: 0rem;
     }
 
     #navbar li{
         margin-bottom: 25px;
         font-size: 40px;
     }
+
+   
 
     #mobile{
         display:flex;
@@ -711,7 +722,7 @@ footer .copyright{
      
 
      #bar{
-       margin-left: 50px;
+       margin-left: 25px;
      }
 
      #close{
@@ -737,16 +748,18 @@ footer .copyright{
 
     #product1 .product-container{
         display: grid;
-        grid-template-columns:repeat(2, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         grid-template-rows: repeat(auto-fit, min-max(100%, auto)) ;
         grid-gap: 1rem;
         justify-items: center;
         align-items: center;
         justify-content: space-between;
         align-content: center;
-        padding-left: 20px;
-        padding-right: 20px;
+        padding-left: 2rem;
+        padding-right: 2rem;
         box-sizing: border-box;
+        max-width: 100%;
+      
        
     }
 
@@ -767,15 +780,18 @@ footer .copyright{
     }
 
     #banner3{
-        padding: 40px;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     }
 
     #banner3 .banner-box{
-        width: 85%;
+        padding: 1px;
+
     }
     #newsletter .form{
         width: 70%;
-        padding-top: 10px;
+        padding-top: 1rem;
     }
 }
 

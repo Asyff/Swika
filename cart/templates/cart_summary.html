@@ -99,10 +99,9 @@
             
 
             <td><div class = "qty">
-              <a href="/reduce_cart/{{product.slug}}"><button class = "btn-minus"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 10h24v4h-24z"/></svg><button></a>
+              <a href="/reduce_cart/{{product.slug}}">
                 <input type="number" value = "{{product.quantity}}">
-              <a href="/add_to_cart/{{product.slug}}"><button class = "btn-plus"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 2c5.514 0 10 4.486 10 10s-4.486 10-10 10-10-4.486-10-10 4.486-10 10-10zm0-2c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6 13h-5v5h-2v-5h-5v-2h5v-5h2v5h5v2z"/></svg></button></a>
-            </div></td>
+              <a href="/add_to_cart/{{product.slug}}">
 
               <td>{{product.total}}</td>
             
