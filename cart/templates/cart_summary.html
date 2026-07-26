@@ -15,10 +15,7 @@
         <li id="lg-bag"><a href="{% url 'cart_summary' %}"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a><button> <span class="quantity" id="cart_quantity">{{ cart|length }}<span></button></li>
          
         <a href="#" id="close"><i class="fa fa-window-close-o" aria-hidden="true"></i></a>
-        <form action = "/search" method="GET">
-        <input name= "query" type="text" placeholder="Search" class="search">
-        <button type="submit" id="find"><i class="fa fa-search" aria-hidden="true"></i></button>
-        </form>
+        
 
         {% if user.is_authenticated %}
         
@@ -83,7 +80,7 @@
         {% if cart_products %}
           {% for product in cart_products %}
           <tbody>
-            <td><a href="/delete_cart/{{product.slug}}">remove</i></a></td>
+            <td><a href="/delete_cart/{{product.slug}}"><i class="fa fa-times" aria-hidden="true" style="color: #FF0000;, font-size: 40px;"></i></a></td>
             <td><img src ="{{product.image.url}}" alt="image"></img></td>
             <td>{{product.name}}</td>
 
@@ -98,10 +95,9 @@
 
             
 
-            <td><div class = "qty">
-              <a href="/reduce_cart/{{product.slug}}">
-                <input type="number" value = "{{product.quantity}}">
-              <a href="/add_to_cart/{{product.slug}}">
+            
+                <td><span value = "{{product.quantity}}" id="qty_cart"></span></td>
+              
 
               <td>{{product.total}}</td>
             
@@ -122,10 +118,9 @@
 
     <section id="cart-add" class="section-p1">
         <div id="coupon">
-        <h3>Apply Coupon</h3>
+        <h3>Update your Cart</h3>
           <div>
-            <input type="text" placeholder="Enter your Coupon">
-            <button >Apply</button>
+            <button >Update</button>
         </div>
         </div>
 

@@ -749,6 +749,9 @@ footer .copyright{
     #product1 .product-container{
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+         grid-template-areas: " item1 "
+                              " item3 "
+                              " item2 ";
         grid-template-rows: repeat(auto-fit, min-max(100%, auto)) ;
         grid-gap: 1rem;
         justify-items: center;
@@ -794,6 +797,37 @@ footer .copyright{
         padding-top: 1rem;
     }
 }
+
+@media  (768px<= width<= 1199px){
+
+     #product1 .product-container{
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(auto-fit, min-max(100%, auto)) ;
+        grid-gap: 1rem;
+        justify-items: center;
+        align-items: center;
+        justify-content: space-between;
+        align-content: center;
+        padding-left: 2rem;
+        padding-right: 2rem;
+        box-sizing: border-box;
+        max-width: 100%;
+}
+       
+      
+       
+    }
+    
+    #cart table{
+
+    }
+
+
+
+
+
+
 
 /*  shop page   */
 #page-header{
@@ -1149,7 +1183,7 @@ footer .copyright{
 }
 
 #cart table{
-    width: 100%;
+    width: 60%;
     border-collapse: collapse;
     table-layout: fixed;
     white-space: nowrap;
