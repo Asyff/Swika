@@ -120,7 +120,7 @@
         <div id="coupon">
         <h3>Update your Cart</h3>
           <div>
-            <button >Update</button>
+            <button type = "button" class="update-cart" data-index = {{product.id}} >Update</button>
         </div>
         </div>
 
@@ -149,5 +149,34 @@
         </div>
 
     </section>
+
+    <script>
+       
+
+        $(document).on('click', '.update-cart', function(e){
+          e.preventDefault();
+          var productid = $(this).data('index');
+          $.ajax({
+
+               type:'POST',
+               url : '{% url 'cart_update' %}',
+               data:{
+                product_id: $(this).data('index'),
+                product_qty: $('#qty-cart' + productid).val(),
+                csrfmiddlewaretoken:'{{csrf_token}}',
+                action: 'post'
+               },
+
+               success: function(json){
+
+                 location.reload();
+               },
+
+               error: function(xhr, errmsg, err){
+
+               }
+          });
+        })
+    </script>
     
   {% endblock%}
