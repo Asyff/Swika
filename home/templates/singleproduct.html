@@ -12,7 +12,7 @@
         <li ><a href="{% url 'blog' %}">Blog</a></li>
         <li ><a href="{% url 'about' %}">About Us</a></li>
         <li ><a href="{% url 'contact' %}">Contact</a></li>
-        <li id="lg-bag"><a href="{% url 'cart_summary' %}"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a><button> <span class="quantity" id="cart_quantity">{{ cart|length }}<span></button></li>
+        <li id="lg-bag"><a href="{% url 'cart_summary' %}"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a><button> <span class="quantity" id="cart_count">{{ cart|length }}<span></button></li>
          
         <a href="#" id="close"><i class="fa fa-window-close-o" aria-hidden="true"></i></a>
         <form action = "/search" method="GET">
@@ -104,7 +104,7 @@
              
           </select>
 
-          <input type="number" value="1" id="qty-cart">
+          <input type="number" value="1" id="qty-cart" , min="1">
           <button class="active" type ="button" value="{{product.id}}" id="add-cart">Add to Cart</button>
           <br>
           <br>
@@ -136,16 +136,16 @@
                 action: 'post'
                },
 
-               success: function(json){
-
-                  //console.log(json)
-                  document.getElementbyId("cart_quantity").
-                      textContent = json.qty
-               },
-
-               error: function(xhr, errmsg, err){
-
-               }
+                success: function(json){
+            // 1. Fetch the value from the Django JSON response
+            $('#qty-cart').val(json.qty);
+    
+             // Optional: If you have a global navbar cart counter badge with id="cart-count"
+             $('#cart-count').textContent = json.global_qty;
+        },
+        error: function(xhr, errmsg, err){
+            console.log("Error updating cart: " + errmsg);
+        }
           });
         })
     </script>
