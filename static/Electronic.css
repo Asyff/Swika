@@ -102,11 +102,11 @@ body{
     transition: 0.3s ease;
 }
 
-#navbar .dropdown {
+#navbar .dropydown {
     overflow: hidden;
 }
 
-#navbar .dropdown button{
+#navbar .dropydown button{
     font-size: 20px;
     border: none;
     outline: none;
@@ -117,11 +117,11 @@ body{
     margin-left: 10px;
 }
 
-#navbar .dropdown button:hover{
+#navbar .dropydown button:hover{
     background-color: #eaa0a2;
 }
 
-#navbar .dropdown .dropdown-menu{
+#navbar .dropydown .dropdown-menu{
     display: none;
     position: absolute;
     background-color: #20C9DF;
@@ -131,7 +131,7 @@ body{
     transition: 0.3s;
 }
 
-#navbar .dropdown .dropdown-items{
+#navbar .dropydown .dropdown-items{
     padding: 12px 16px;
     text-decoration: none;
     display: block;
@@ -139,11 +139,11 @@ body{
     transition: 0.3s;
 }
 
-#navbar .dropdown .dropdown-items:hover{
+#navbar .dropydown .dropdown-items:hover{
     background-color: #eaa0a2;
 }
 
-#navbar .dropdown:hover .dropdown-menu{
+#navbar .dropydown:hover .dropdown-menu{
     display: block;
 }
 
@@ -692,7 +692,7 @@ footer .copyright{
              height: auto;
              background-color: #E3E6F3;
              box-shadow: 0 40px 60px rgba(0, 0, 0, 0.1);
-             padding: 80px 0 0 10px;
+             padding: 30px 0 0 10px;
              transition: 0.4s;
     }
 
@@ -820,6 +820,7 @@ footer .copyright{
     }
     
     #cart table{
+        width:50%;
 
     }
 

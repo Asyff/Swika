@@ -40,6 +40,7 @@ def cart_add(request):
         cart.add(product=product, quantity = product_qty)
         global_cart_total = cart.__len__()
         
+        
         # Get the specific quantity for just THIS product to update its table row
         specific_product_qty = cart.cart.get(str(product_id), 0)
 
@@ -49,7 +50,9 @@ def cart_add(request):
             'global_qty': global_cart_total   # For a nav bar cart counter badge (if you have one)
         }
         
-        messages.success(request,("Added to Cart!"))
+        messages.success(request, "Added to Cart!")
+        request.session.modified = True
+       
         return JsonResponse(response_data)
 
 
