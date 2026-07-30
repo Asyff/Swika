@@ -22,7 +22,7 @@
         <div class = "dropydown">
           <button>{{user.username}}</i></button>
           <div class = "dropdown-menu">
-             <a href="{% url 'update_user' %}" class="dropdown-items">Profile</a>
+             <a href="{% url 'update_profile' %}" class="dropdown-items">Profile</a>
             <form method="POST" action="{% url 'logout' %}">
               {% csrf_token %}
             <a href="{% url 'logout' %}" class="dropdown-items">Logout</a>

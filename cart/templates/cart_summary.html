@@ -22,7 +22,7 @@
         <div class = "dropydown">
           <button>{{user.username}}</i></button>
           <div class = "dropdown-menu">
-             <a href="{% url 'update_user' %}" class="dropdown-items">Profile</a>
+             <a href="{% url 'update_profile' %}" class="dropdown-items">Profile</a>
             <form method="POST" action="{% url 'logout' %}">
               {% csrf_token %}
             <a href="{% url 'logout' %}" class="dropdown-items">Logout</a>
@@ -58,106 +58,96 @@
 
     </section>
 
-    <section  id="page-header" class="cart-header">
-
-       <h2>Cart<h2>
-       
-       <p>Proceed to Check Out</p>
-       
-    </section>
-
-     <section  id="cart" class="section-p1">
-
+    <div id="cart-content-wrapper">
+    {% if cart_products %}
+    <section id="cart" class="section-p1">
         <table width="100%">
-          <thead>
-            <tr>
-             <td>Remove</td>
-             <td>Image</td>
-             <td>Product</td>
-             <td>Price</td>
-             <td>Quantity</td>
-             <td>Subtotal</td>
-            </tr>
-          </thead>
-
-        {% if cart_products %}
-          {% for product in cart_products %}
-          <tbody id="row_{{ product.id }}">
-            <td><button type = "button" class= "delete-product"  data-index="{{ product.id }}" style="border: none; cursor: pointer;"><i class="fa fa-times" aria-hidden="true" style="color: #FF0000;, font-size: 40px;"></i></button></td>
-            <td><img src ="{{product.image.url}}" alt="image"></img></td>
-            <td>{{product.name}}</td>
-
-            {% if product.sale_price > 0 %}
-
-            <td>{{product.sale_price}}</td>
-            {% else %}
-
-            <td>{{product.price}}</td>
-
-            {% endif %}
-
+            <thead>
+                <tr>
+                    <td>Remove</td>
+                    <td>Image</td>
+                    <td>Product</td>
+                    <td>Price</td>
+                    <td>Quantity</td>
+                    <td>Subtotal</td>
+                </tr>
+            </thead>
             
-                 <td><input type="number" value="{{ product.qty }}" id="cart_qty_{{product.id}}" min="1"  onchange="updateCartQuantity('{{product.id}}')"></td>
-              
+            <!-- FIX: Opened the tbody tag OUTSIDE of the loop framework -->
+            <tbody>
+                {% for product in cart_products %}
+                <!-- FIX: Dynamic row target belongs on the tr element -->
+                <tr id="row_{{ product.id }}">
+                    <!-- FIX: Removed trailing comma inside the icon styling block -->
+                    <td>
+                        <button type="button" class="delete-product" data-index="{{ product.id }}" style="border: none; background: none; cursor: pointer;">
+                            <i class="fa fa-times" aria-hidden="true" style="color: #FF0000; font-size: 24px;"></i>
+                        </button>
+                    </td>
+                    <td><img src="{{ product.image.url }}" alt="image" style="width: 70px; height: auto;"></td>
+                    <td>{{ product.name }}</td>
 
-              <td>Rs.{{ product.total_price }}</td>
-            
-          </tbody>
+                    <td>
+                        Rs.{% if product.sale_price > 0 %}{{ product.sale_price }}{% else %}{{ product.price }}{% endif %}
+                    </td>
 
-          
-          {% endfor %}
+                    <td>
+                        <!-- Optional Upgrade: You can swap this with the plus/minus buttons container from earlier if desired -->
+                        <input type="number" value="{{ product.qty }}" id="cart_qty_{{ product.id }}" min="1" onchange="updateCartQuantity('{{ product.id }}')">
+                    </td>
 
-          
-
-           
+                    <!-- FIX: Added span tag container with dynamic subtotal targets for AJAX tracking -->
+                    <td>Rs.<span id="subtotal_{{ product.id }}" class="item-subtotal">{{ product.total_price }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
-       
     </section>
 
-    <section id="cart-add" class="section-p1">
+     <section id="cart-add" class="section-p1">
         <div id="coupon">
-        <h3>Update your Cart</h3>
-          <div>
-            <button type = "button" class="update-cart" data-index = {{product.id}} >Update</button>
-        </div>
+            <h3>Update your Cart</h3>
+            <div>
+                <!-- Removed dangling undefined product loop variable indices -->
+                <p class="text-muted">Prices adjust automatically when quantities change.</p>
+            </div>
         </div>
 
         <div id="subtotal">
           <h3>Cart Totals</h3>
             <table>
-              <tr>
-                <td>Cart Subtotal</td>
-                <td>Rs.{{ totals }} </td>
-              </tr>
-
-              <tr>
-                <td>Shipping</td>
-                <td>Rs.50</td>
-                
-              </tr>
-
-              <tr>
-                <td><strong>Grand Total:</strong></td>
-                <td>Rs<span id="cart_grand_total">{{ totals }}</span></td>
-                
-                
-              </tr>
+                <tr>
+                    <td>Cart Subtotal</td>
+                    <td>Rs.<span id="cart_subtotal_val">{{ totals }}</span></td>
+                </tr>
+                <tr>
+                    <td>Shipping</td>
+                    <td>Rs.50</td>
+                </tr>
+                <tr>
+                    <td><strong>Grand Total:</strong></td>
+                    <!-- FIX: Added dynamic id token wrapper to manage grand summary mutations seamlessly -->
+                    <td><strong>Rs.<span id="cart_grand_total">{{ totals }}</span></strong></td>
+                </tr>
             </table>
-            <button> Check Out</button>
+            <!-- Added redirect navigation route link pattern -->
+            <a href="#" class="btn btn-success mt-3" style="display: inline-block; text-decoration: none; background: #088178; color: #fff; padding: 12px 30px; border-radius: 4px; font-weight: 700;">Proceed to Checkout</a>
         </div>
+    </section>
+    
+    {% else %}
+    <!-- This block triggers if the page loads empty -->
+    <section class="section-p1 text-center py-5">
+        <h3>Your cart is currently empty.</h3>
+        <a href="/" class="btn btn-primary mt-3" style="display: inline-block; background: #088178; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Continue Shopping</a>
+    </section>
+    {% endif %}
+</div>
 
-        {% else %}
-
-         <div class="text-center py-5">
-                <h3>Your cart is currently empty.</h3>
-                <a href="/" class="btn btn-primary mt-3">Continue Shopping</a>
-            </div>
-
-            {% endif %}
-
-            <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-       <div id="cartToast" class="toast align-items-center text-white bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
-          <div class="d-flex">
+<!-- Reusable Bootstrap Toast Notification Engine Container Layout -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="cartToast" class="toast align-items-center text-white bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
             <div class="toast-body" id="toastMessage">
                 Item removed from cart!
             </div>
@@ -165,9 +155,6 @@
         </div>
     </div>
 </div>
-
-
-    </section>
 
     <script>
 
@@ -185,8 +172,14 @@
             action: 'post'
         },
         success: function(json){
-            // Update total prices dynamically on the cart page if needed
-            location.reload(); // Quickest way to update all totals on a cart table edit
+            $(`#subtotal_${productId}`).text(json.subtotal);
+    
+    // Update structural layout footer totals block counters
+    $('#cart_subtotal_val').text(json.grand_total);
+    $('#cart_grand_total').text(json.grand_total);
+    
+    // Update responsive navigation bars
+    $('.nav-cart-badge-class').text(json.global_qty);
         },
         error: function(xhr, errmsg, err){
             console.log(errmsg);

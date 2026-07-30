@@ -23,7 +23,7 @@
         <div class = "dropydown">
           <button>{{user.username}}</i></button>
           <div class = "dropdown-menu">
-             <a href="{% url 'update_user' %}" class="dropdown-items">Profile</a>
+             <a href="{% url 'update_profile' %}" class="dropdown-items">Profile</a>
             <form method="POST" action="{% url 'logout' %}">
               {% csrf_token %}
             <a href="{% url 'logout' %}" class="dropdown-items">Logout</a>
@@ -65,39 +65,25 @@
       <div class ="signup-container" >
         <h1>User Profile</h1>
 
-        {% for message in messages %}
-        <h5>{{message}}<h5>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-success">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
 
-        {% endfor %}
 
-        <form class="signup" method="POST" action="{% url 'register'%}">
-          {% csrf_token %} 
-          
-            <label>First Name</label>
-            <input name="first_name" required type="text" placeholder="First Name">
-
-            <label>Last Name</label>
-            <input name="last_name" required type="text" placeholder="Last Name">
-
-            <label>Username</label>
-            <input name="username" required type="text" placeholder="Username">
-
-            <label>Email</label>
-            <input name="email" required type="email" placeholder="Email">
-
-            <label>Password</label>
-            <input name="password" required type="password" placeholder="Password">
-            
-            
-            <label>Confirm Password</label>
-            <input name="password2" required type="password" placeholder="Confirm password">
-
-            <button type="submit" class="silobtn">Sign Up</button>
-            
-
+        <form method="POST">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="mb-3">
+                    <label class="form-label"><strong>{{ field.label }}</strong></label>
+                    {{ field }}
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary w-100 mt-2">Save Changes</button>
         </form>
 
-        <p class="account">Already have an account? <a href="{% url 'login' %}"> LogIn</a> </p>
+        
     </div>
    </section>
 

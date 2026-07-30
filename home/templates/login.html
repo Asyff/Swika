@@ -22,7 +22,7 @@
         <div class = "dropydown">
           <button>{{user.username}}</i></button>
           <div class = "dropdown-menu">
-             <a href="{% url 'update_user' %}" class="dropdown-items">Profile</a>
+             <a href="{% url 'update_profile' %}" class="dropdown-items">Profile</a>
             <form method="POST" action="{% url 'logout' %}">
               {% csrf_token %}
             <a href="{% url 'logout' %}" class="dropdown-items">Logout</a>
@@ -61,26 +61,35 @@
 
 
     <section class="signup-section">
-       
-      <div class ="signup-container" >
+    <div class="signup-container">
         <h1>Log In</h1>
 
-        <form class="signup" method="POST" action = "{% url 'login' %}">
-             {% csrf_token %}
-            <label>Email/UserName</label>
-            <input placeholder="Enter your email/Username" name= "username">
+        <!-- DYNAMIC ALERTS: Display credential validation errors automatically -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %} text-center py-2 mb-3" role="alert" style="font-size: 14px; border-radius: 6px;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form class="signup" method="POST" action="{% url 'login' %}">
+            {% csrf_token %}
+            
+            <label>Username</label>
+            <!-- Note: Unless you configure a backend backend authentication router link, 
+                 Django default auth checks expects the 'username' key string specifically -->
+            <input required type="text" placeholder="Enter your username" name="username">
 
             <label>Password</label>
-            <input required type="password" placeholder="Enter your password" name = "password">
+            <input required type="password" placeholder="Enter your password" name="password">
             
             <button type="submit" class="silobtn">LogIn</button>
-            
-
         </form>
 
-        <p class="account">Don't have an account?<a href="{% url 'register'%}"> SignUp</a> </p>
+        <p class="account">Don't have an account? <a href="{% url 'register' %}">SignUp</a></p>
     </div>
-   </section>
+</section>
 
 
       

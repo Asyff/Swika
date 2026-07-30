@@ -22,7 +22,7 @@
         <div class = "dropydown">
           <button>{{user.username}}</i></button>
           <div class = "dropdown-menu">
-             <a href="{% url 'update_user' %}" class="dropdown-items">Profile</a>
+             <a href="{% url 'update_profile' %}" class="dropdown-items">Profile</a>
             <form method="POST" action="{% url 'logout' %}">
               {% csrf_token %}
             <a href="{% url 'logout' %}" class="dropdown-items">Logout</a>
@@ -143,7 +143,7 @@
            
     
              // Optional: If you have a global navbar cart counter badge with id="cart-count"
-             $('#nav-cart-badge').textContent = json.global_qty;
+            $('.nav-cart-badge-class').text(json.global_qty);
 
               window.location.href = window.location.href;
 

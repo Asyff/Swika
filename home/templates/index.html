@@ -23,7 +23,7 @@
         <div class = "dropydown">
           <button>{{user.username}}</i></button>
           <div class = "dropdown-menu">
-             <a href="{% url 'update_user' %}" class="dropdown-items">Profile</a>
+             <a href="{% url 'update_profile' %}" class="dropdown-items">Profile</a>
             <form method="POST" action="{% url 'logout' %}">
               {% csrf_token %}
             <a href="{% url 'logout' %}" class="dropdown-items">Logout</a>
@@ -51,7 +51,7 @@
 
      <div id="mobile">
       
-         <a href="{% url 'cart_summary' %}"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a><button> <span class="quantity" id="#nav-cart-badge"> {{ cart|length }}<span></button>
+         <a href="{% url 'cart_summary' %}"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a><button> <span class="quantity" id="nav-cart-badge"> {{ cart|length }}<span></button>
          <i id="bar" class="fa fa-bars" aria-hidden="true"></i>
         
 
