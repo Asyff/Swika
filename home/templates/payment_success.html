@@ -1,0 +1,53 @@
+<!-- payment_success.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<section id="page-header" class="about-header" style="background-image: url('{% static 'img/about/banner.png' %}'); background-color: #088178; padding: 40px 0; text-align: center; color: #fff;">
+    <h2 style="font-weight: 700;">Payment Successful</h2>
+    <p style="color: #ddd;">Thank you for shopping with us!</p>
+</section>
+
+<div class="container my-5 text-center">
+    <div class="card shadow-sm p-5 mx-auto" style="max-width: 650px; border-radius: 12px; border: none; background: #fff;">
+        <!-- Success Icon Group Check badge element -->
+        <div class="mb-4">
+            <i class="fa fa-check-circle" aria-hidden="true" style="color: #088178; font-size: 90px; text-shadow: 0px 4px 10px rgba(8,129,120,0.2);"></i>
+        </div>
+        
+        <h2 class="mb-2" style="color: #222; font-weight: 700; font-size: 32px;">Order Confirmed</h2>
+        <p class="text-muted mb-4" style="font-size: 16px; line-height: 1.6;">
+            Your transaction has processed successfully. Your items are locked, stock inventory levels have updated, and our fulfillment logistics team is packaging your items for dispatch.
+        </p>
+
+        <!-- Transaction Informational Alert Box -->
+        <div class="p-3 mb-4 text-start rounded-3" style="background-color: #f4fdfb; border-left: 5px solid #088178;">
+            <h6 style="color: #088178; font-weight: 700; margin-bottom: 5px;">What's Next?</h6>
+            <ul class="text-muted small ps-3 mb-0" style="line-height: 1.5;">
+                <li>You will receive an automated payment configuration billing log inside your account dashboard.</li>
+                <li>Delivery dispatch tracking routes are prepared instantly.</li>
+                <li>Please keep your phone active so our Nepalese courier partners can coordinate delivery routes smoothly.</li>
+            </ul>
+        </div>
+
+        <!-- Action Call Buttons UI Panel -->
+        <div class="d-grid gap-3 d-sm-flex justify-content-sm-center mt-2">
+            <!-- Redirect back to Store Marketplace -->
+            <a href="{% url 'category_summary' %}" class="btn btn-primary btn-lg px-4 py-3" style="background: #088178; border: none; font-size: 16px; font-weight: 700; border-radius: 4px; box-shadow: 0 4px 12px rgba(8,129,120,0.2); transition: all 0.3s ease;">
+                Continue Shopping
+            </a>
+            <!-- Link to Order History Tracking Dashboard we built earlier -->
+            <a href="{% url 'order_history' %}" class="btn btn-outline-secondary btn-lg px-4 py-3" style="font-size: 16px; font-weight: 600; color: #444; border: 1px solid #ccc; border-radius: 4px; transition: all 0.3s ease;">
+                Track Order History <i class="fa fa-arrow-right ms-1" aria-hidden="true"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Subtle interactions styling adjustments wrappers */
+    .btn:hover {
+        transform: translateY(-2px);
+        opacity: 0.95;
+    }
+</style>
+{% endblock %}

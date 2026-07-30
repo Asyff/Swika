@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+
+
+<div class="container my-5">
+    <div class="row g-5">
+        <!-- FIX 1: Opened the correct matching column grid container -->
+        <div class="col-md-7">
+            <h4 class="mb-3" style="font-weight: 700;">Delivery & Billing Destination</h4>
+
+            <div class="row g-3 mb-4">
+                <div class="col-sm-6">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-control" value="{{ user_full_name }}" readonly>
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-control" value="{{ user_email }}" readonly>
+                </div>
+
+                {% for field in form %}
+                <div class="col-12 {% if field.name == 'city' or field.name == 'postal_code' %}col-md-6{% endif %}">
+                    <label class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="text-danger small">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <hr class="my-4">
+            
+            <!-- FIX 2: Added the missing radio buttons so users can change the payment selection -->
+            <h4 class="mb-3" style="font-weight: 700;">Select Local Payment Method</h4>
+            <div class="my-3">
+                <div class="form-check mb-2">
+                    <input id="esewa" name="paymentMethod" type="radio" class="form-check-input" checked required onclick="switchLocalGateway('esewa')">
+                    <label class="form-check-label" for="esewa" style="cursor: pointer;"><strong>eSewa Wallet</strong></label>
+                </div>
+                <div class="form-check mb-2">
+                    <input id="khalti" name="paymentMethod" type="radio" class="form-check-input" required onclick="switchLocalGateway('khalti')">
+                    <label class="form-check-label" for="khalti" style="cursor: pointer;"><strong>Khalti Digital Wallet</strong></label>
+                </div>
+                <div class="form-check mb-2">
+                    <input id="fonepay" name="paymentMethod" type="radio" class="form-check-input" required onclick="switchLocalGateway('fonepay')">
+                    <label class="form-check-label" for="fonepay" style="cursor: pointer;"><strong>Fonepay Interbank QR</strong></label>
+                </div>
+            </div>
+
+            <hr class="my-4">
+
+            <!-- 1. ESEWA BLOCK (Visible by default) -->
+            <!-- Note: Reverted back to sandbox testing path to ensure signatures match development parameters -->
+            <form id="esewa-form" action="https://rc-epay.esewa.com.np/api/epay/main/v2/form" method="POST">
+                <input type="hidden" id="e_amount" name="amount" value="{{ totals }}" required>
+                <input type="hidden" id="e_tax_amount" name="tax_amount" value="0" required>
+                <input type="hidden" id="e_total_amount" name="total_amount" value="{{ totals }}" required>
+                <input type="hidden" id="e_transaction_uuid" name="transaction_uuid" value="" required>
+                <input type="hidden" id="e_product_code" name="product_code" value="EPAYTEST" required>
+                <input type="hidden" id="e_product_service_charge" name="product_service_charge" value="0" required>
+                <input type="hidden" id="e_product_delivery_charge" name="product_delivery_charge" value="0" required>
+                <input type="hidden" id="e_success_url" name="success_url" value="http://localhost:8000/esewa-success/" required>
+                <input type="hidden" id="e_failure_url" name="failure_url" value="http://localhost:8000/checkout/" required>
+                <input type="hidden" id="e_signed_field_names" name="signed_field_names" value="total_amount,transaction_uuid,product_code" required>
+                <input type="hidden" id="e_signature" name="signature" value="" required>
+                
+                <button type="submit" class="btn btn-success btn-lg w-100" style="background: #60bb46; border: none; font-weight: 700; padding: 14px;">Pay with eSewa (Rs.{{ totals }})</button>
+            </form>
+
+            <!-- 2. KHALTI BLOCK (Hidden by default) -->
+            <div id="khalti-payment-wrapper" style="display: none;">
+                <button type="button" id="khalti-button" class="btn btn-primary btn-lg w-100" style="background: #5c2d91; border: none; font-weight: 700; padding: 14px; color: #fff;">Pay with Khalti (Rs.{{ totals }})</button>
+            </div>
+
+            <!-- 3. FONEPAY BLOCK (Hidden by default) -->
+            <div id="fonepay-payment-wrapper" style="display: none;" class="text-center p-4 border rounded bg-white shadow-sm">
+                <h5 style="font-weight: 700;">Scan Merchant Fonepay QR</h5>
+                <p class="text-muted small">Open your mobile banking app, launch the camera scanner, and scan the QR code to transfer exactly <strong>Rs.{{ totals }}</strong></p>
+                <img src="https://qrserver.com_{{ totals }}" alt="Fonepay QR Code" class="img-fluid my-3" style="max-width: 200px; border: 4px solid #eee;">
+                {% csrf_token %}
+                <button type="button" class="btn btn-dark w-100 mt-2 py-3" style="font-weight: 600;" onclick="triggerFonepayVerification()">I Have Transferred Funds. Complete Checkout</button>
+            </div>
+        </div> <!-- FIX 3: Closed the left column div cleanly -->
+
+        <!-- Right Side Column: Order Summary Card Layout Module -->
+        <div class="col-md-5">
+            <div class="card shadow-sm p-4" style="border-radius: 8px;">
+                <h4 class="mb-3" style="color: #088178; font-weight: 700;">Order Summary</h4>
+                <ul class="list-group mb-3 list-group-flush">
+                    {% for product in cart_products %}
+                    <li class="list-group-item d-flex justify-content-between align-items-start px-0 bg-transparent">
+                        <div class="me-auto">
+                            <h6 class="my-0" style="font-weight: 600; color: #333;">{{ product.name }}</h6>
+                            <small class="text-muted">Quantity Selected: {{ product.qty }}</small>
+                        </div>
+                        <span class="text-muted" style="font-weight: 500;">Rs.{{ product.total_price }}</span>
+                    </li>
+                    {% endfor %}
+                    <li class="list-group-item d-flex justify-content-between px-0 pt-3 bg-transparent" style="border-top: 2px dashed #ddd;">
+                        <span style="font-size: 18px;"><strong>Total Cost:</strong></span>
+                        <strong style="font-size: 18px; color: #088178;">Rs.<span>{{ totals }}</span></strong>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const orderTotalAmount = "{{ totals }}";
+</script>
+
+
+{% endblock %}
