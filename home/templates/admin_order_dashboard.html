@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 style="font-weight: 700; color: #222;">Admin Order Fulfillment Dashboard</h2>
+        <span class="badge bg-dark px-3 py-2" style="font-size: 14px;">Store Management Console</span>
+    </div>
+
+    <!-- Alert Messaging Display block -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %} text-center mb-4">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Operational Analytical Metric Cards Grid Row -->
+    <div class="row g-3 mb-5">
+        <div class="col-md-2 col-6">
+            <div class="p-3 border rounded text-center bg-white shadow-sm">
+                <h6 class="text-muted small uppercase mb-1">Total Incoming</h6>
+                <h3 class="mb-0" style="font-weight: 700;">{{ metrics.total }}</h3>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="p-3 border rounded text-center bg-white shadow-sm border-start border-warning border-3">
+                <h6 class="text-warning small uppercase mb-1">Pending</h6>
+                <h3 class="mb-0" style="font-weight: 700; color: #ffc107;">{{ metrics.pending }}</h3>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="p-3 border rounded text-center bg-white shadow-sm border-start border-success border-3">
+                <h6 class="text-success small uppercase mb-1">Paid / Ready</h6>
+                <h3 class="mb-0" style="font-weight: 700; color: #198754;">{{ metrics.paid }}</h3>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="p-3 border rounded text-center bg-white shadow-sm border-start border-primary border-3">
+                <h6 class="text-primary small uppercase mb-1">In Transit</h6>
+                <h3 class="mb-0" style="font-weight: 700; color: #0d6efd;">{{ metrics.shipped }}</h3>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="p-3 border rounded text-center bg-white shadow-sm border-start border-secondary border-3">
+                <h6 class="text-secondary small uppercase mb-1">Delivered</h6>
+                <h3 class="mb-0" style="font-weight: 700; color: #6c757d;">{{ metrics.delivered }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4 bg-light">
+    <div class="card-body p-4">
+        <h5 class="mb-3" style="font-weight: 700; color: #444;">Search & Filter Real-Time Transactions</h5>
+        
+        <!-- Live Search Execution Control Form -->
+        <form method="GET" action="{% url 'admin_order_dashboard' %}" class="row g-3">
+            <!-- Search Text Capture Input Box Field -->
+            <div class="col-md-5 col-12">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa fa-search" aria-hidden="true"></i></span>
+                    <input type="text" name="search" class="form-control border-start-0" placeholder="Look up customer username, phone, or address..." value="{{ request.GET.search }}">
+                </div>
+            </div>
+            
+            <!-- Logistical Status Filters Dropdown Combo Selection -->
+            <div class="col-md-3 col-6">
+                <select name="status_filter" class="form-select">
+                    <option value="">-- All Logistical Statuses --</option>
+                    <option value="Pending" {% if request.GET.status_filter == 'Pending' %}selected{% endif %}>Pending</option>
+                    <option value="Paid" {% if request.GET.status_filter == 'Paid' %}selected{% endif %}>Paid / Ready</option>
+                    <option value="Shipped" {% if request.GET.status_filter == 'Shipped' %}selected{% endif %}>Shipped</option>
+                    <option value="Delivered" {% if request.GET.status_filter == 'Delivered' %}selected{% endif %}>Delivered</option>
+                </select>
+            </div>
+            
+            <!-- Operational Interaction Action Submission Buttons Utilities Wrapper -->
+            <div class="col-md-4 col-6 d-flex gap-2">
+                <button type="submit" class="btn btn-dark w-100" style="font-weight: 600;">Apply Filters</button>
+                <a href="{% url 'admin_order_dashboard' %}" class="btn btn-outline-secondary w-100" style="font-weight: 600;">Reset All</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+    <!-- Active Orders Management Interactive Table Panel Grid -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="font-size: 15px;">
+    <thead class="table-light">
+        <tr>
+            <th class="ps-3">Order ID</th>
+            <th>Date & Time</th>
+            <th>Customer Account</th>
+            <th>Product / Qty Item</th>
+            <th>Total Gross</th>
+            <!-- SPLIT HEADER: Separated into clean columns -->
+            <th>Fulfillment Address</th>
+            <th>Payment Route</th>
+            <th>Tracking Status</th>
+            <th class="pe-3 text-center">Fulfillment Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if orders %}
+            {% for order in orders %}
+            <tr>
+                <td class="ps-3 fw-bold">#{{ order.id }}</td>
+                <td class="text-muted small">{{ order.date|date:"Y-m-d H:i" }}</td>
+                <td>
+                    <div><strong>{{ order.user.username }}</strong></div>
+                    <div class="text-muted small">Phone: {{ order.phone }}</div>
+                </td>
+                <td>
+                    <div class="fw-semibold">{{ order.product.name }}</div>
+                    <div class="text-muted small">Units: x{{ order.quantity }}</div>
+                    
+                    {% if order.product.stock_quantity != None %}
+                        {% if order.product.stock_quantity <= 5 %}
+                            <div class="mt-1">
+                                <span class="badge bg-danger text-white" style="font-size: 11px; padding: 4px 8px;">
+                                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Low Stock: {{ order.product.stock_quantity }} Left
+                                </span>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </td>
+                <td class="fw-bold" style="color: #088178;">Rs.{{ order.total_cost }}</td>
+                
+                <!-- COLUMN 1: Clean Address Text -->
+                <td><small class="text-muted d-inline-block text-truncate" style="max-width: 180px;">{{ order.address }}</small></td>
+                
+                <!-- COLUMN 2: Beautiful Local Gateway Identifier Badges -->
+                <td>
+                    {% if "esewa" in order.address|lower or "paid via esewa" in order.address|lower %}
+                        <span class="badge text-white" style="background-color: #60bb46; font-size: 12px;">eSewa</span>
+                    {% elif "khalti" in order.address|lower %}
+                        <span class="badge text-white" style="background-color: #5c2d91; font-size: 12px;">Khalti</span>
+                    {% elif "fonepay" in order.address|lower %}
+                        <span class="badge text-white" style="background-color: #dc3545; font-size: 12px;">Fonepay</span>
+                    {% else %}
+                        <span class="badge bg-secondary" style="font-size: 12px;">Local Payment</span>
+                    {% endif %}
+                </td>
+
+                <td>
+                    <span class="badge {% if order.status == 'Paid' %}bg-success{% elif order.status == 'Shipped' %}bg-primary{% elif order.status == 'Delivered' %}bg-secondary{% else %}bg-warning text-dark{% endif %}">
+                        {{ order.status }}
+                    </span>
+                </td>
+                <td class="pe-3 text-center">
+                    <form action="{% url 'update_order_status' order.id %}" method="POST" class="d-flex align-items-center justify-content-center gap-1">
+                        {% csrf_token %}
+                        <select name="status" class="form-select form-select-sm" style="max-width: 120px;">
+                            <option value="Pending" {% if order.status == 'Pending' %}selected{% endif %}>Pending</option>
+                            <option value="Paid" {% if order.status == 'Paid' %}selected{% endif %}>Paid</option>
+                            <option value="Shipped" {% if order.status == 'Shipped' %}selected{% endif %}>Shipped</option>
+                            <option value="Delivered" {% if order.status == 'Delivered' %}selected{% endif %}>Delivered</option>
+                        </select>
+                        <button type="submit" class="btn btn-dark btn-sm">Update</button>
+                        <a href="{% url 'print_invoice' order.id %}" target="_blank" class="btn btn-outline-secondary btn-sm">
+                            <i class="fa fa-print" aria-hidden="true"></i>
+                        </a>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        {% endif %}
+                        <td>
+    <div class="fw-semibold">{{ order.product.name }}</div>
+    <div class="text-muted small">Units Ordered: x{{ order.quantity }}</div>
+    
+    <!-- FIX: Removed hasattr() and checked the variable value directly -->
+    {% if order.product.stock_quantity != None %}
+        {% if order.product.stock_quantity <= 5 %}
+            <div class="mt-1">
+                <!-- Using standard Bootstrap warning badges for quick scannability -->
+                <span class="badge bg-danger text-white" style="font-size: 11px; padding: 4px 8px;">
+                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Low Stock: {{ order.product.stock_quantity }} Left
+                </span>
+            </div>
+        {% endif %}
+    {% endif %}
+</td>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

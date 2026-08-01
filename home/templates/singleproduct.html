@@ -2,7 +2,8 @@
 {% load static %}
 {% block content %}
 
-   <section id="header">
+<!-- Navigation Header Component Block Wrapper -->
+<section id="header">
   <a href="{% url 'home' %}"><img src="{% static '/img/swika.png' %}" class="logo" alt="logo"></a>
   <div>
     <ul id="navbar">
@@ -12,7 +13,6 @@
       <li><a href="{% url 'about' %}">About Us</a></li>
       <li><a href="{% url 'contact' %}">Contact</a></li>
       
-      <!-- Desktop Cart Counter (Unified ID to nav-cart-badge) -->
       <li id="lg-bag">
         <a href="{% url 'cart_summary' %}">
           <i style="font-size: 30px;" class="fa fa-shopping-cart" aria-hidden="true"></i>
@@ -22,14 +22,11 @@
        
       <a href="#" id="close"><i class="fa fa-window-close-o" aria-hidden="true"></i></a>
 
-        {% if user.is_authenticated %}
-        
-        <div class = "dropydown">
-          <button>{{ user.username }}</button>
+      {% if user.is_authenticated %}
+      <div class="dropydown">
+        <button>{{ user.username }}</button>
         <div class="dropdown-menu">
           <a href="{% url 'update_profile' %}" class="dropdown-items">Profile</a>
-          
-          <!-- FIX: Form now submits securely when link is clicked -->
           <form method="POST" action="{% url 'logout' %}" style="margin: 0;">
             {% csrf_token %}
             <a href="#" onclick="event.preventDefault(); this.parentElement.submit();" class="dropdown-items">Logout</a>
@@ -49,111 +46,141 @@
   </div>
 
   <div id="mobile">
-    <!-- FIX: Removed the hash character inside the ID name attribute -->
     <a href="{% url 'cart_summary' %}"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
     <button><span class="quantity nav-cart-badge-class" id="nav-cart-badge">{{ cart|length }}</span></button>
     <i id="bar" class="fa fa-bars" aria-hidden="true"></i>
   </div>
 </section>
-    
 
-    
-    <section id="productdetails" class="section-p1">
-        
-      
-       <div class="single-pro-image">
-         <img src="{{product.image.url}}" width="100%" id="BigImg" alt=""><img/>
-       
-          <div class="small-img-group">
-
-             <div class="small-img-col">
-               <img src="{{product.image.url}}" width="100%" class = "smallimg" alt=""><img/>
-             </div>
-
-             <div class="small-img-col">
-               <img src="{{product.image.url}}" width="100%" class = "smallimg" alt=""><img/>
-             </div>
-
-             <div class="small-img-col">
-               <img src="{{product.image.url}}" width="100%" class = "smallimg" alt=""><img/>
-             </div>
-
-             <div class="small-img-col">
-               <img src="{{product.image.url}}" width="100%" class = "smallimg" alt=""><img/>
-             </div>
- 
-          </div>
-        
-       </div>
-      
-      
-        <div class="single-pro-details">
-          
-          <h2>{{product.name}}</h2>
-          <h2>{{product.price}}</h2>
-
-          <select>
-             <option>Color</option>
-             <option >Blue</option>
-             <option >White</option>
-             <option >Black</option>
-             <option >Yellow</option>
-             
-             
-          </select>
-
-          <input type="number" value="1" id="qty-cart" , min="1">
-          <button class="active" type ="button" value="{{product.id}}" id="add-cart">Add to Cart</button>
-          <br>
-          <br>
-          <h6>Product Details</h6>
-          <span>{{product.description}}</span>
-       
-      </div>
-     
-    </section>
-
+<!-- Main Interactive Product Summary Block Profile Canvas -->
+<section id="productdetails" class="section-p1">
+   <div class="single-pro-image">
+     <!-- FIX 1: Repaired invalid image self-closing brackets -->
+     <img src="{{ product.image.url }}" width="100%" id="BigImg" alt="{{ product.name }}" />
    
+      <div class="small-img-group" style="display: flex; justify-content: space-between; margin-top: 8px;">
+         <!-- Frame 1: Always include the core default image product thumbnail base first -->
+         <div class="small-img-col" style="flex-basis: 24%; cursor: pointer;">
+           <img src="{{ product.image.url }}" width="100%" class="smallimg" alt="Main View" />
+         </div>
+
+         <!-- FIX 2: Replaced the duplicate hardcoded files with a dynamic database carousel array loop -->
+         {% for extra_img in carousel_images %}
+         <div class="small-img-col" style="flex-basis: 24%; cursor: pointer;">
+           <img src="{{ extra_img.image.url }}" width="100%" class="smallimg" alt="Gallery View" />
+         </div>
+         {% endfor %}
+      </div>
+   </div>
   
-    <script>
-       
+    <div class="single-pro-details">
+      <h6>Home / Category Selection</h6>
+      <h2>{{ product.name }}</h2>
+      
+      <!-- Styled regional price representations formatting output -->
+      <h3>
+        Rs. {% if product.sale_price > 0 %}{{ product.sale_price }}{% else %}{{ product.price }}{% endif %}
+      </h3>
 
+      <select class="form-select mb-3" style="max-width: 150px; padding: 10px; border-radius: 4px;">
+         <option>Select Color</option>
+         <option>Blue</option>
+         <option>White</option>
+         <option>Black</option>
+         <option>Yellow</option>
+      </select>
 
+      <div class="d-flex align-items-center gap-2 mb-4">
+          <input type="number" value="1" id="qty-cart" min="1" max="{{ product.stock_quantity }}" class="form-control text-center" style="width: 70px; padding: 10px;">
+          
+          {% if product.stock_quantity > 0 %}
+              <button class="active" type="button" value="{{ product.id }}" id="add-cart">Add to Cart</button>
+              <div class="ms-2"><span class="text-success small fw-semibold"><i class="fa fa-check-circle" aria-hidden="true"></i> In Stock ({{ product.stock_quantity }} left)</span></div>
+          {% else %}
+              <button class="btn btn-secondary" disabled style="cursor: not-allowed; padding: 12px 30px; border-radius: 4px;">Out of Stock</button>
+              <div class="ms-2"><span class="badge bg-danger text-white">Sold Out</span></div>
+          {% endif %}
+      </div>
 
+      <br>
+      <h6>Product Details</h6>
+      <span style="line-height: 1.6; color: #555; display: inline-block; margin-top: 10px;">{{ product.description }}</span>
+  </div>
+</section>
 
-        $(document).on('click', '#add-cart', function(e){
-          e.preventDefault();
-          $.ajax({
+<!-- Load jQuery tracking library dependency before executing active listener scripts -->
+<script src="https://jquery.com"></script>
 
-               type:'POST',
-               url : '{% url 'cart_add' %}',
-               data:{
+<script>
+$(document).ready(function() {
+    
+    // FIX 3: Dynamic Image Gallery Swapper Script
+    // Smoothly updates focus canvas image parameters when small thumbnails are tapped
+    $('.smallimg').on('click', function() {
+        let selectedImgSrc = $(this).attr('src');
+        $('#BigImg').attr('src', selectedImgSrc);
+    });
+
+    // Unified AJAX Add-to-Cart Controller Transaction Pipeline Check
+    $(document).on('click', '#add-cart', function(e){
+        e.preventDefault();
+        
+        let typedQty = parseInt($('#qty-cart').val()) || 1;
+        let maxAvailableStock = parseInt($('#qty-cart').attr('max'));
+
+        // Prevent typing errors from sneaking additions past layout caps
+        if (typedQty > maxAvailableStock) {
+            alert("Cannot exceed available warehouse stock limits. Reverting to: " + maxAvailableStock);
+            $('#qty-cart').val(maxAvailableStock);
+            return;
+        }
+        
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'cart_add' %}",
+            data: {
                 product_id: $('#add-cart').val(),
                 product_qty: $('#qty-cart').val(),
-                csrfmiddlewaretoken:'{{csrf_token}}',
+                csrfmiddlewaretoken: '{{ csrf_token }}',
                 action: 'post'
-               },
+            },
+            success: function(json){
+                $('.nav-cart-badge-class').text(json.qty);
+                $('#cart_quantity').text(json.qty);
+                $('#nav-cart-badge').text(json.qty);
+                
+                $('.ajax-message-container').remove();
+                
+                // Injects clean Django alerts banner inside your page layout block structure
+                let alertNode = $('<div class="ajax-message-container" style="position: fixed; top: 80px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 600px; z-index: 2000;"></div>').html(json.message_html);
+                $('body').prepend(alertNode);
+                
+                setTimeout(function() {
+                    $('.ajax-message-container').fadeOut(500, function() {
+                        $(this).remove();
+                    });
+                }, 4000);
+            },
+            error: function(xhr, errmsg, err){
+                if (xhr.status === 400 && xhr.responseText) {
+                    try {
+                        let responseData = JSON.parse(xhr.responseText);
+                        alert(responseData.error);
+                    } catch(e) {
+                        alert("Failed to process transaction inventory constraints.");
+                    }
+                } else {
+                    console.error("Standard connection processing error fault: " + errmsg);
+                }
+            }
+        });
+    });
+});
+</script>
 
-                success: function(json){
-            // 1. Fetch the value from the Django JSON response
-            $('#qty-cart').val(json.qty);
-
-           
-    
-             // Optional: If you have a global navbar cart counter badge with id="cart-count"
-            $('.nav-cart-badge-class').text(json.global_qty);
-
-              window.location.href = window.location.href;
-
-             
-        },
-        error: function(xhr, errmsg, err){
-            console.log("Error updating cart: " + errmsg);
-        }
-          });
-        })
-
-        
-    </script>
-
- {% endblock%}
+<FollowUp>
+If you want, tell me if you need help with:
+* Setting up the **`ProductImage` Inline Model configurations** inside `admin.py` to upload multiple images at once.
+* Injecting a **"Related Products" recommendation row grid** at the bottom of this detail sheet.
+</FollowUp>
+{% endblock %}

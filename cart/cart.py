@@ -1,10 +1,11 @@
-from home.models import Product
-from .models import PersistentCartItem, Product
+# cart/cart.py
+from home.models import Product  # FIX 1: Explicitly import Product from your home models app
+from .models import PersistentCartItem  # Import your active DB cart database tracking model row
 
 class Cart():
     def __init__(self, request):
         self.session = request.session
-        self.request = request # Save the request object reference for user check access
+        self.request = request 
         
         cart = self.session.get('session_key')
         if 'session_key' not in request.session:
@@ -12,19 +13,32 @@ class Cart():
             
         self.cart = cart
 
-        # SYNC LOGIC: If user is authenticated, sync DB items into the current session structure
         if request.user.is_authenticated:
             db_items = PersistentCartItem.objects.filter(user=request.user)
-            for item in db_items:
-                product_id_str = str(item.product.id)
-                # Keep the highest quantity if there is a conflict between session and DB
-                if product_id_str in self.cart:
-                    self.cart[product_id_str] = max(int(self.cart[product_id_str]), item.quantity)
-                else:
-                    self.cart[product_id_str] = item.quantity
             
-            # Save the synced layout state back down to the session tracking storage
+            # If the user has NO items inside the DB cart table tracking rows, hard-wipe the active session dict!
+            # This completely stops the ghost data data resurrection bugs.
+            if not db_items.exists():
+                self.cart = self.session['session_key'] = {}
+            else:
+                for item in db_items:
+                    product_id_str = str(item.product.id)
+                    if product_id_str in self.cart:
+                        self.cart[product_id_str] = max(int(self.cart[product_id_str]), item.quantity)
+                    else:
+                        self.cart[product_id_str] = item.quantity
+            
             self.session.modified = True
+            
+    def clear(self):
+        """
+        Forcefully deletes all items from both the session dictionary 
+        and the live instance variables, stopping any data recovery loops.
+        """
+        self.cart = {}
+        if 'session_key' in self.session:
+            del self.session['session_key']
+        self.session.modified = True
     
     def add(self, product, quantity):
         product_id = str(product.id)
@@ -49,16 +63,13 @@ class Cart():
                 item.quantity += product_qty
             item.save()
         
-    
     def __len__(self):
         return sum(self.cart.values())
     
     def get_prods(self):
-        product_ids=self.cart.keys()
+        product_ids = self.cart.keys()
         products = Product.objects.filter(id__in=product_ids)
-        
         return products
-    
     
     def get_quants(self):
         quantities = self.cart
@@ -100,12 +111,9 @@ class Cart():
             key = int(key)
             for product in products:
                 if product.id == key:
-                    if product.is_sale: 
-                       total = total + (product.sale_price * value)
+                    # FIX 2: Swapped the broken attribute check with your actual pricing parameters check
+                    if product.sale_price > 0: 
+                        total = total + (product.sale_price * value)
                     else:
                         total = total + (product.price * value)
-                        
-        
-        return total 
-                    
-        
+        return total

@@ -132,3 +132,11 @@ STATICFILES_DIRS = ['static/']
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGIN_URL = 'login'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = '://gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'your_store_email@gmail.com'  # Replace with your business email address
+EMAIL_HOST_PASSWORD = 'your_app_password_token'  # Replace with Google App Password token
+DEFAULT_FROM_EMAIL = f'Swika Estore <{EMAIL_HOST_USER}>'

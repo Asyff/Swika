@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
 
 
@@ -6,7 +7,7 @@
 
 <div class="container my-5">
     <div class="row g-5">
-        <!-- FIX 1: Opened the correct matching column grid container -->
+        <!-- Left Column: Delivery Address, Region & Payment Selection -->
         <div class="col-md-7">
             <h4 class="mb-3" style="font-weight: 700;">Delivery & Billing Destination</h4>
 
@@ -20,20 +21,25 @@
                     <input type="email" class="form-control" value="{{ user_email }}" readonly>
                 </div>
 
+                <!-- Region Selector: Calculates shipping price instantly -->
+                <div class="col-12">
+                    <label class="form-label" style="font-weight: 600;">Delivery Location (Region)</label>
+                    <select id="shipping-region" class="form-select" onchange="calculateDynamicShipping()">
+                        <option value="inside" selected>Inside Kathmandu Valley (Rs. 50)</option>
+                        <option value="outside">Outside Kathmandu Valley (Rs. 150)</option>
+                    </select>
+                </div>
+
                 {% for field in form %}
                 <div class="col-12 {% if field.name == 'city' or field.name == 'postal_code' %}col-md-6{% endif %}">
                     <label class="form-label">{{ field.label }}</label>
                     {{ field }}
-                    {% if field.errors %}
-                        <div class="text-danger small">{{ field.errors }}</div>
-                    {% endif %}
                 </div>
                 {% endfor %}
             </div>
 
             <hr class="my-4">
             
-            <!-- FIX 2: Added the missing radio buttons so users can change the payment selection -->
             <h4 class="mb-3" style="font-weight: 700;">Select Local Payment Method</h4>
             <div class="my-3">
                 <div class="form-check mb-2">
@@ -48,70 +54,97 @@
                     <input id="fonepay" name="paymentMethod" type="radio" class="form-check-input" required onclick="switchLocalGateway('fonepay')">
                     <label class="form-check-label" for="fonepay" style="cursor: pointer;"><strong>Fonepay Interbank QR</strong></label>
                 </div>
+                <!-- Cash on Delivery Option -->
+                <div class="form-check mb-2">
+                    <input id="cod" name="paymentMethod" type="radio" class="form-check-input" required onclick="switchLocalGateway('cod')">
+                    <label class="form-check-label" for="cod" style="cursor: pointer;"><strong class="text-primary">Cash on Delivery (COD)</strong></label>
+                </div>
             </div>
 
             <hr class="my-4">
 
-            <!-- 1. ESEWA BLOCK (Visible by default) -->
-            <!-- Note: Reverted back to sandbox testing path to ensure signatures match development parameters -->
-            <form id="esewa-form" action="https://rc-epay.esewa.com.np/api/epay/main/v2/form" method="POST">
-                <input type="hidden" id="e_amount" name="amount" value="{{ totals }}" required>
+            <!-- 1. eSewa Form Block -->
+            <!-- FIX 1: Corrected form action link to point to the secure v2 sandbox endpoint -->
+            <form id="esewa-form" action="https://esewa.com.np" method="POST">
+                <input type="hidden" id="e_amount" name="amount" value="{{ cart_subtotal }}" required>
                 <input type="hidden" id="e_tax_amount" name="tax_amount" value="0" required>
-                <input type="hidden" id="e_total_amount" name="total_amount" value="{{ totals }}" required>
+                <input type="hidden" id="e_total_amount" name="total_amount" value="" required>
                 <input type="hidden" id="e_transaction_uuid" name="transaction_uuid" value="" required>
                 <input type="hidden" id="e_product_code" name="product_code" value="EPAYTEST" required>
                 <input type="hidden" id="e_product_service_charge" name="product_service_charge" value="0" required>
                 <input type="hidden" id="e_product_delivery_charge" name="product_delivery_charge" value="0" required>
+                <!-- Updated landing endpoints to point to standard localhost paths for safe sandbox loops -->
                 <input type="hidden" id="e_success_url" name="success_url" value="http://localhost:8000/esewa-success/" required>
                 <input type="hidden" id="e_failure_url" name="failure_url" value="http://localhost:8000/checkout/" required>
                 <input type="hidden" id="e_signed_field_names" name="signed_field_names" value="total_amount,transaction_uuid,product_code" required>
                 <input type="hidden" id="e_signature" name="signature" value="" required>
                 
-                <button type="submit" class="btn btn-success btn-lg w-100" style="background: #60bb46; border: none; font-weight: 700; padding: 14px;">Pay with eSewa (Rs.{{ totals }})</button>
+                <button type="submit" class="btn btn-success btn-lg w-100 btn-checkout-action" style="background: #60bb46; border: none; font-weight: 700; padding: 14px;">Pay with eSewa</button>
             </form>
 
-            <!-- 2. KHALTI BLOCK (Hidden by default) -->
+            <!-- 2. Khalti Block -->
             <div id="khalti-payment-wrapper" style="display: none;">
-                <button type="button" id="khalti-button" class="btn btn-primary btn-lg w-100" style="background: #5c2d91; border: none; font-weight: 700; padding: 14px; color: #fff;">Pay with Khalti (Rs.{{ totals }})</button>
+                <button type="button" id="khalti-button" class="btn btn-primary btn-lg w-100 btn-checkout-action" style="background: #5c2d91; border: none; font-weight: 700; padding: 14px; color: #fff;">Pay with Khalti</button>
             </div>
 
-            <!-- 3. FONEPAY BLOCK (Hidden by default) -->
+            <!-- 3. Fonepay Block -->
             <div id="fonepay-payment-wrapper" style="display: none;" class="text-center p-4 border rounded bg-white shadow-sm">
                 <h5 style="font-weight: 700;">Scan Merchant Fonepay QR</h5>
-                <p class="text-muted small">Open your mobile banking app, launch the camera scanner, and scan the QR code to transfer exactly <strong>Rs.{{ totals }}</strong></p>
-                <img src="https://qrserver.com_{{ totals }}" alt="Fonepay QR Code" class="img-fluid my-3" style="max-width: 200px; border: 4px solid #eee;">
+                <p class="text-muted small">Scan this QR code and pay the exact grand total via your banking app.</p>
+                <!-- FIX 2: Restored complete, fully parameter-mapped free live testing QR canvas engine -->
+                <img src="https://qrserver.com_{{ cart_subtotal }}" alt="Fonepay QR Code" class="img-fluid my-3" style="max-width: 200px; border: 4px solid #eee; border-radius: 8px;">
                 {% csrf_token %}
-                <button type="button" class="btn btn-dark w-100 mt-2 py-3" style="font-weight: 600;" onclick="triggerFonepayVerification()">I Have Transferred Funds. Complete Checkout</button>
+                <button type="button" class="btn btn-dark w-100 mt-2 py-3 btn-checkout-action" style="font-weight: 600;" onclick="triggerFonepayVerification()">I Have Transferred Funds. Complete Checkout</button>
             </div>
-        </div> <!-- FIX 3: Closed the left column div cleanly -->
 
-        <!-- Right Side Column: Order Summary Card Layout Module -->
+            <!-- 4. Cash on Delivery Block -->
+            <div id="cod-payment-wrapper" style="display: none;">
+                <button type="button" class="btn btn-primary btn-lg w-100 btn-checkout-action" style="background: #0d6efd; border: none; font-weight: 700; padding: 14px;" onclick="triggerCodOrder()">Place Order via Cash on Delivery</button>
+            </div>
+        </div>
+
+        <!-- Right Side Column: Order Summary Card with Dynamic Math -->
         <div class="col-md-5">
             <div class="card shadow-sm p-4" style="border-radius: 8px;">
-                <h4 class="mb-3" style="color: #088178; font-weight: 700;">Order Summary</h4>
+                <h4 class="mb-3" style="color: #f30000; font-weight: 700;">Order Summary</h4>
                 <ul class="list-group mb-3 list-group-flush">
                     {% for product in cart_products %}
-                    <li class="list-group-item d-flex justify-content-between align-items-start px-0 bg-transparent">
-                        <div class="me-auto">
-                            <h6 class="my-0" style="font-weight: 600; color: #333;">{{ product.name }}</h6>
-                            <small class="text-muted">Quantity Selected: {{ product.qty }}</small>
+                    <li class="list-group-item px-0 bg-transparent">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="me-auto">
+                                <h6 class="my-0" style="font-weight: 600; color: #333;">{{ product.name }}</h6>
+                                <small class="text-muted">Quantity: {{ product.qty }}</small>
+                            </div>
+                            <span class="text-muted" style="font-weight: 500;">Rs. {{ product.total_price }}</span>
                         </div>
-                        <span class="text-muted" style="font-weight: 500;">Rs.{{ product.total_price }}</span>
+                        <!-- STOCK COUNTDOWN BANNER -->
+                        {% if product.stock_quantity <= 5 %}
+                        <div class="mt-1">
+                            <span class="badge bg-warning text-dark" style="font-size: 11px;">
+                                <i class="fa fa-hourglass-half" aria-hidden="true"></i> Hurry! Only {{ product.stock_quantity }} items left in stock.
+                            </span>
+                        </div>
+                        {% endif %}
                     </li>
                     {% endfor %}
+                    
+                    <!-- FIX 3: Restored completely closed mathematical breakdown blocks and grid wrappers -->
+                    <li class="list-group-item d-flex justify-content-between px-0 bg-transparent pt-3">
+                        <span>Cart Subtotal:</span>
+                        <span class="fw-semibold">Rs. <span id="summary-subtotal">{{ cart_subtotal }}</span></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0 bg-transparent">
+                        <span>Shipping Delivery Charge:</span>
+                        <span class="fw-semibold text-primary">+ Rs. <span id="summary-shipping">50</span></span>
+                    </li>
                     <li class="list-group-item d-flex justify-content-between px-0 pt-3 bg-transparent" style="border-top: 2px dashed #ddd;">
-                        <span style="font-size: 18px;"><strong>Total Cost:</strong></span>
-                        <strong style="font-size: 18px; color: #088178;">Rs.<span>{{ totals }}</span></strong>
+                        <span style="font-size: 18px;"><strong>Grand Total:</strong></span>
+                        <strong style="font-size: 18px; color: #20C9DF;">Rs. <span id="summary-grand-total">0</span></strong>
                     </li>
                 </ul>
             </div>
         </div>
     </div>
 </div>
-
-<script>
-    const orderTotalAmount = "{{ totals }}";
-</script>
-
 
 {% endblock %}

@@ -1,26 +1,23 @@
 from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse
 from .cart import Cart
 from home.models import Product
-from django.http import JsonResponse
-from django.contrib import messages
-
-# Create your views here.
 
 def cart_summary(request):
     cart = Cart(request)
-    quantities = cart.get_quants() # Make sure to add parentheses () to call your method
+    quantities = cart.get_quants() 
     totals = cart.cart_total()
     
-    # We will attach quantities and subtotals directly onto the product objects dynamically
     products_with_data = []
     for product in cart.get_prods():
         product_id_str = str(product.id)
         
         if product_id_str in quantities:
             qty = quantities[product_id_str]
-            price = product.sale_price if product.is_sale else product.price
+            # FIX 1: Aligned with your core billing strategy checking sale_price value
+            price = product.sale_price if product.sale_price > 0 else product.price
             
-            # Attach temporary custom attributes onto the object
+            # Attach temporary custom attributes onto the object context
             product.qty = qty
             product.total_price = round(float(price) * qty, 2)
             
@@ -30,30 +27,37 @@ def cart_summary(request):
         "cart_products": products_with_data,
         "totals": totals
     })
+    
 def cart_add(request):
-    cart= Cart(request)
-    if request.POST.get('action')=='post':
-        product_id = int(request.POST.get('product_id'))
-        product_qty = int(request.POST.get('product_qty'))
-        product = get_object_or_404(Product, id=product_id)
-        
-        cart.add(product=product, quantity = product_qty)
-        global_cart_total = cart.__len__()
-        
-        
-        # Get the specific quantity for just THIS product to update its table row
-        specific_product_qty = cart.cart.get(str(product_id), 0)
+    cart = Cart(request)
+    if request.POST.get('action') == 'post':
+        try:
+            product_id = int(request.POST.get('product_id'))
+            product_qty = int(request.POST.get('product_qty'))
+        except (TypeError, ValueError):
+            return JsonResponse({'error': 'Invalid product ID or quantity format.'}, status=400)
 
-        response_data = {
-            'product_id': product_id,
-            'qty': specific_product_qty,        # For the specific product input box
-            'global_qty': global_cart_total   # For a nav bar cart counter badge (if you have one)
-        }
+        product = get_object_or_404(Product, id=product_id)
+        current_in_cart = int(cart.cart.get(str(product_id), 0))
+        total_requested = current_in_cart + product_qty
+
+        if total_requested > product.stock_quantity:
+            return JsonResponse({'error': f"Cannot add. Only {product.stock_quantity} total items available."}, status=400)
+
+        cart.add(product=product, quantity=product_qty)
         
-        messages.success(request, "Added to Cart!")
-        request.session.modified = True
-       
-        return JsonResponse(response_data)
+        message_html = f'''
+            <div class="alert alert-success alert-dismissible fade show text-center py-2 mb-3 mx-auto" role="alert" style="max-width:600px; font-size:14px; border-radius:6px; z-index:1050;">
+                Successfully added <strong>{product.name}</strong> to your cart!
+                <button type="button" class="btn btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        '''
+
+        return JsonResponse({
+            'qty': cart.__len__(),
+            'message_html': message_html
+        })
+    return JsonResponse({'error': 'Invalid request method.'}, status=400)
 
 
 def cart_delete(request):
@@ -61,38 +65,51 @@ def cart_delete(request):
     if request.POST.get('action') == 'post':
         product_id = int(request.POST.get('product_id'))
         
-        # 1. Delete the product from the session state
         cart.delete(product=product_id)
         
-        # 2. Grab the newly updated totals for the response payload
         global_cart_total = cart.__len__()
         new_grand_total = cart.cart_total()
 
-        # 3. Pass all the information your AJAX success handler needs
         response_data = {
             'product_id': product_id,
             'global_qty': global_cart_total,
             'grand_total': round(new_grand_total, 2)
         }
-        
         return JsonResponse(response_data)
+    return JsonResponse({'error': 'Invalid request method.'}, status=400)
     
 
 def cart_update(request):
     cart = Cart(request)
     if request.POST.get('action') == 'post':
-        product_id = int(request.POST.get('product_id'))
-        product_qty = int(request.POST.get('product_qty'))
+        try:
+            product_id = int(request.POST.get('product_id'))
+            product_qty = int(request.POST.get('product_qty'))
+        except (TypeError, ValueError):
+            return JsonResponse({'error': 'Invalid format.'}, status=400)
+            
+        product = get_object_or_404(Product, id=product_id)
         
-        # This calls your Cart class update method
+        # FIX 2: HARD VALIDATION—Block quantity modifiers from sneaking past stock thresholds
+        if product_qty > product.stock_quantity:
+            return JsonResponse({
+                'error': f"Only {product.stock_quantity} units available. Reverting quantity.",
+                'max_stock': product.stock_quantity
+            }, status=400)
+            
+        # Call your Cart class update method
         cart.update(product=product_id, quantity=product_qty)
        
-        # Get the global cart badge total (sum of all items combined)
-        global_cart_total = cart.__len__()
+        # Calculate fresh subtotal math details for your live AJAX script
+        price = product.sale_price if product.sale_price > 0 else product.price
+        item_subtotal = round(float(price) * product_qty, 2)
+        new_grand_total = cart.cart_total()
 
-        response = JsonResponse({
+        # FIX 3: Fully populated response dictionary with line subtotals and grand total data
+        return JsonResponse({
             'qty': product_qty,
-            'global_qty': global_cart_total
+            'subtotal': item_subtotal,
+            'global_qty': cart.__len__(),
+            'grand_total': round(new_grand_total, 2)
         })
-        return response
-    
+    return JsonResponse({'error': 'Invalid request method.'}, status=400)

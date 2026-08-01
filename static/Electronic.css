@@ -1306,18 +1306,14 @@ footer .copyright{
     padding-bottom: 15px;
  }
 
- #subtotal button{
+ #subtotal a{
     background-color: #20C9DF;
     color: #fff;
-    width: 100px;
-    height: 50px;
-    padding: 5px;
-    border-radius: 10px;
     transition: 0.3s;
     border: none;
  }
 
- #subtotal button:hover{
+ #subtotal a:hover{
     background-color: #eaa0a2;
     cursor: pointer;
     transform: scale(1.05);

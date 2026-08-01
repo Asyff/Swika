@@ -1,0 +1,109 @@
+<!-- print_invoice.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice Receipt - Order #{{ order.id }}</title>
+    <!-- Use standard minimal Bootstrap styling for alignment -->
+    <link href="https://jsdelivr.net" rel="stylesheet">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #fff; color: #333; }
+        .invoice-card { max-width: 800px; margin: 30px auto; padding: 40px; border: 1px solid #eee; }
+        .invoice-title { font-size: 32px; font-weight: 700; color: #20C9DF; }
+        /* Special utility to hide operational action print buttons when paper printer loop fires */
+        @media print {
+            .no-print { display: none !important; }
+            body { margin: 0; padding: 0; }
+            .invoice-card { border: none; padding: 0; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="invoice-card bg-white shadow-sm rounded">
+        <!-- Interactive Operational Control Utilities Row -->
+        <div class="d-flex justify-content-between align-items-center mb-5 no-print">
+            <a href="javascript:window.history.back();" class="text-secondary text-decoration-none">&larr; Return back to dashboard</a>
+            <button onclick="window.print();" class="btn btn-primary" style="background-color: #eaa0a2; border: none;">Print / Save as PDF</button>
+        </div>
+
+        
+        <div class="row mb-5">
+            <div class="col-6">
+                <h1 class="invoice-title">SWIKA ESTORE</h1>
+                <p class="text-muted small">Kathmandu / Lalitpur, Nepal<br>Support: support@swikaestore.com.np</p>
+            </div>
+            <div class="col-6 text-end">
+                <h3 class="fw-bold mb-1">INVOICE RECEIPT</h3>
+                <div class="text-muted small"><strong>Invoice Reference ID:</strong> #ORD-00{{ order.id }}</div>
+                <div class="text-muted small"><strong>Transaction Date:</strong> {{ order.date|date:"Y-m-d H:i" }}</div>
+                <div class="text-muted small"><strong>Payment Method:</strong> Local Gateway Verified</div>
+            </div>
+        </div>
+
+        <hr class="my-4">
+
+        <!-- Customer Destination Shipping and Contact Information Metadata block grid -->
+        <div class="row mb-5">
+            <div class="col-6">
+                <h6 class="text-muted text-uppercase small" style="font-weight: 700;">Billed Destination To:</h6>
+                <div class="fw-bold" style="font-size: 17px;">{{ order.user.first_name }} {{ order.user.last_name }}</div>
+                <div class="text-muted">Username: @{{ order.user.username }}</div>
+                <div class="text-muted">Email Connected: {{ order.user.email }}</div>
+            </div>
+            <div class="col-6 text-end">
+                <h6 class="text-muted text-uppercase small" style="font-weight: 700;">Shipping Contact Matrix:</h6>
+                <div class="fw-semibold">{{ order.address }}</div>
+                <div class="text-muted">Contact Phone Number: {{ order.phone }}</div>
+                <div><span class="badge bg-success mt-1">Payment Status: {{ order.status }}</span></div>
+            </div>
+        </div>
+
+        <!-- Main Invoice Financial Line Items Grid Table -->
+        <table class="table align-middle table-bordered mb-4">
+            <thead class="table-light">
+                <tr>
+                    <th class="py-3">Purchased E-store Merchandise Detail Description</th>
+                    <th class="text-center py-3" style="width: 15%;">Unit Cost</th>
+                    <th class="text-center py-3" style="width: 15%;">Qty</th>
+                    <th class="text-end py-3 pe-3" style="width: 20%;">Line Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="py-3">
+                        <div class="fw-bold">{{ order.product.name }}</div>
+                        <small class="text-muted">Product Database Identification Code: #PROD-{{ order.product.id }}</small>
+                    </td>
+                    <td class="text-center py-3">Rs.{{ order.price_at_purchase }}</td>
+                    <td class="text-center py-3">x{{ order.quantity }}</td>
+                    <td class="text-end py-3 pe-3 fw-bold">Rs.{{ order.total_cost }}</td>
+                </tr>
+                <tr>
+                    <td colspan="2" class="border-0"></td>
+                    <td class="text-end py-3 border-start">Subtotal:</td>
+                    <td class="text-end py-3 pe-3">Rs.{{ order.total_cost }}</td>
+                </tr>
+                <tr>
+                    <td colspan="2" class="border-0"></td>
+                    <td class="text-end py-3 border-start">Delivery Base:</td>
+                    <td class="text-end py-3 pe-3">Rs.0.00</td>
+                </tr>
+                <tr class="table-light fs-5">
+                    <td colspan="2" class="border-0"></td>
+                    <td class="text-end py-3 border-start"><strong>Grand Total:</strong></td>
+                    <td class="text-end py-3 pe-3 fw-bold" style="color: #20C9DF;">Rs.{{ order.total_cost }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Corporate greeting footer information node -->
+        <div class="text-center text-muted small mt-5 pt-4 border-top">
+            Thank you for shopping with Swika Estore! This is a computer-generated transaction record invoice. No physical signature is required.
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

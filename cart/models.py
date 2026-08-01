@@ -1,10 +1,6 @@
 from django.db import models
-
-# Create your models here.
-
-from django.db import models
 from django.contrib.auth.models import User
-from home.models import Product
+from home.models import Product  # Assumes Product model lives in home app
 
 class PersistentCartItem(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='db_cart_items')
@@ -13,7 +9,8 @@ class PersistentCartItem(models.Model):
     date_added = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('user', 'product') # One row per unique item per user
+        # Ensures one unique row per user per product in the database
+        unique_together = ('user', 'product') 
 
     def __str__(self):
         return f"{self.user.username} - {self.product.name} (x{self.quantity})"

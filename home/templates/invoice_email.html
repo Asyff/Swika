@@ -1,0 +1,61 @@
+<!-- home/templates/emails/invoice_email.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+</head>
+<body style="font-family: 'Segoe UI', Arial, sans-serif; color: #333; line-height: 1.6; margin: 0; padding: 20px; background-color: #f9f9f9;">
+    <div style="max-width: 600px; margin: 0 auto; border: 1px solid #e1e1e1; padding: 30px; border-radius: 8px; background-color: #ffffff; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+        
+        <div style="text-align: center; margin-bottom: 25px;">
+            <h2 style="color: #088178; margin-bottom: 5px; font-size: 28px; font-weight: 700;">SWIKA ESTORE</h2>
+            <p style="color: #777; font-size: 13px; margin: 0;">Order Payment Confirmation Receipt</p>
+        </div>
+        
+        <p style="font-size: 15px;">Dear <strong>{{ user_name }}</strong>,</p>
+        <p style="font-size: 15px;">Thank you for your purchase! We have successfully received your payment details via local gateway network verification. Your items are locked, and our delivery fulfillment partners are preparing your package for transit [31/Jul/2026].</p>
+        
+        <h4 style="color: #222; border-bottom: 2px solid #088178; padding-bottom: 8px; margin-top: 30px; margin-bottom: 15px;">Transaction Item Description</h4>
+        
+        <table style="width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px;">
+            <thead>
+                <tr style="background-color: #088178; color: #ffffff;">
+                    <th style="padding: 12px; border: 1px solid #088178; text-align: left;">Merchandise Item</th>
+                    <th style="padding: 12px; border: 1px solid #088178; text-align: center; width: 15%;">Qty</th>
+                    <th style="padding: 12px; border: 1px solid #088178; text-align: right; width: 25%;">Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td style="padding: 12px; border: 1px solid #eee;">
+                        <strong>{{ order.product.name }}</strong>
+                    </td>
+                    <td style="padding: 12px; border: 1px solid #eee; text-align: center;">x{{ order.quantity }}</td>
+                    <td style="padding: 12px; border: 1px solid #eee; text-align: right; font-weight: 600;">Rs. {{ order.total_cost }}</td>
+                </tr>
+                {% endfor %}
+                <tr style="background-color: #fdfdfd; font-size: 16px;">
+                    <td colspan="2" style="padding: 12px; border: 1px solid #eee; text-align: right;"><strong>Grand Total:</strong></td>
+                    <td style="padding: 12px; border: 1px solid #eee; text-align: right; font-weight: 700; color: #088178;">Rs. {{ grand_total }}</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div style="background-color: #f4fdfb; padding: 15px; border-left: 4px solid #088178; margin: 25px 0; border-radius: 4px; font-size: 14px;">
+            <strong style="color: #088178; display: block; margin-bottom: 5px;">Shipping Logistics Destination:</strong>
+            {{ delivery_address }}<br>
+            <strong>Contact Phone:</strong> {{ delivery_phone }}
+        </div>
+        
+        <p style="font-size: 13px; color: #666; background: #fff8f2; padding: 12px; border-radius: 4px; border-left: 4px solid #ffc107;">
+            <i class="fa fa-info-circle"></i> <strong>Note:</strong> Please keep your telephone lines active so our Nepalese courier dispatch riders can reach you smoothly for door drop-offs [31/Jul/2026].
+        </p>
+        
+        <div style="margin-top: 40px; font-size: 12px; color: #999; text-align: center; border-top: 1px solid #eee; padding-top: 20px;">
+            Swika Estore &bull; Kathmandu, Nepal.<br>
+            This is an automated invoice billing transmission. No physical signature required.
+        </div>
+    </div>
+</body>
+</html>

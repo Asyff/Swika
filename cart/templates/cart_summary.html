@@ -99,7 +99,7 @@
 
                     <td>
                         <!-- Optional Upgrade: You can swap this with the plus/minus buttons container from earlier if desired -->
-                        <input type="number" value="{{ product.qty }}" id="cart_qty_{{ product.id }}" min="1" onchange="updateCartQuantity('{{ product.id }}')">
+                        <input type="number" value="{{ product.qty }}" id="cart_qty_{{ product.id }}" min="1" max="{{ product.stock_quantity }}"  onchange="updateCartQuantity('{{ product.id }}')">
                     </td>
 
                     <!-- FIX: Added span tag container with dynamic subtotal targets for AJAX tracking -->
@@ -137,7 +137,7 @@
                 </tr>
             </table>
             <!-- Added redirect navigation route link pattern -->
-            <a href="{% url 'checkout'%}" class="btn btn-success mt-3" style="display: inline-block; text-decoration: none; background: #088178; color: #fff; padding: 12px 30px; border-radius: 4px; font-weight: 700;">Proceed to Checkout</a>
+            <a href="{% url 'checkout'%}" class="btn" style="display: inline-block; text-decoration: none; padding: 12px 30px; border-radius: 10px; font-weight: 700;">Proceed to Checkout</a>
         </div>
     </section>
     
@@ -145,7 +145,7 @@
     <!-- This block triggers if the page loads empty -->
     <section class="section-p1 text-center py-5">
         <h3>Your cart is currently empty.</h3>
-        <a href="/" class="btn btn-primary mt-3" style="display: inline-block; background: #088178; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Continue Shopping</a>
+        <a href="/" class="btn btn-primary mt-3" style="display: inline-block; background: #20C9DF; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Continue Shopping</a>
     </section>
     {% endif %}
 </div>
@@ -167,6 +167,19 @@
       function updateCartQuantity(productId) {
     // Get the newly typed value from this specific input box
     let newQty = $(`#cart_qty_${productId}`).val();
+    let inputField = $(`#cart_qty_${productId}`);
+    let typedQty = parseInt(inputField.val()) || 1;
+    
+    // Fetch the maximum value configured via the HTML element attributes wrapper
+    let maxAvailableStock = parseInt(inputField.attr('max'));
+
+    // FIX: Force numbers down to the maximum stock count if they type a larger amount
+    if (typedQty > maxAvailableStock) {
+        alert("Cannot exceed available warehouse stock limits. Reverting to: " + maxAvailableStock);
+        inputField.val(maxAvailableStock);
+        typedQty = maxAvailableStock;
+    }
+
 
     $.ajax({
         type: 'POST',

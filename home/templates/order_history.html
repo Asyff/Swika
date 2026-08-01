@@ -1,46 +1,92 @@
+<!-- Inside order_history.html -->
 {% extends 'base.html' %}
 {% block content %}
 <div class="container my-5">
-    <h3 class="mb-4" style="color: #088178; font-weight: 700;">Your Order History</h3>
+    <h3 class="mb-4" style="color: #088178; font-weight: 700;">Your Order & Delivery History</h3>
     
     {% if orders %}
-        <div class="table-responsive">
-            <table class="table table-bordered align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>Order ID</th>
-                        <th>Date</th>
-                        <th>Product</th>
-                        <th>Quantity</th>
-                        <th>Price/Unit</th>
-                        <th>Total Cost</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for order in orders %}
-                    <tr>
-                        <td>#{{ order.id }}</td>
-                        <td>{{ order.date|date:"Y-m-d H:i" }}</td>
-                        <td>{{ order.product.name }}</td>
-                        <td>{{ order.quantity }}</td>
-                        <td>Rs.{{ order.price_at_purchase }}</td>
-                        <!-- Calls the custom @property total_cost we added to your model earlier -->
-                        <td>Rs.{{ order.total_cost }}</td>
-                        <td>
-                            <span class="badge {% if order.status == 'Paid' %}bg-success{% elif order.status == 'Shipped' %}bg-primary{% else %}bg-warning text-dark{% endif %}">
-                                {{ order.status }}
-                            </span>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        {% for order in orders %}
+        <div class="card shadow-sm mb-4 border-0" style="border-radius: 8px; background: #fff;">
+            <!-- Header Block of individual Order Card summary items metrics -->
+            <div class="card-header border-0 p-3 d-flex justify-content-between align-items-center" style="background-color: #f8f9fa;">
+                <div>
+                    <span class="text-muted small">Order Reference:</span> <strong style="color: #088178;">#ORD-00{{ order.id }}</strong>
+                    <span class="mx-2 text-muted">|</span>
+                    <span class="text-muted small">Date:</span> <span class="fw-semibold">{{ order.date|date:"Y-m-d H:i" }}</span>
+                </div>
+                <div class="fw-bold" style="color: #333;">Total Paid: Rs. {{ order.total_cost }}</div>
+            </div>
+            
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+                    <!-- Merchandise meta data fields -->
+                    <div class="col-md-4 mb-3 mb-md-0">
+                        <h5 class="mb-1" style="font-weight: 600; color: #222;">{{ order.product.name }}</h5>
+                        <p class="text-muted small mb-2">Quantity: x{{ order.quantity }} | Unit Price: Rs. {{ order.price_at_purchase }}</p>
+                        <p class="text-muted small mb-0"><i class="fa fa-map-marker text-danger" aria-hidden="true"></i> Delivery Address: {{ order.address }}</p>
+                    </div>
+                    
+                    <!-- VISUAL STATUS TRACKER STEP BAR PANEL CANVAS -->
+                    <div class="col-md-8">
+                        <div class="position-relative d-flex justify-content-between align-items-center my-3" style="max-width: 600px; margin: 0 auto;">
+                            <!-- Absolute Horizontal connecting track line -->
+                            <div class="position-absolute start-0 end-0 top-50 translate-y-50 bg-secondary-subtle" style="height: 4px; z-index: 1; transform: translateY(-50%);"></div>
+                            
+                            <!-- Highlighted filled active color line overlay based on logistical step status values -->
+                            <div class="position-absolute start-0 top-50 translate-y-50" style="height: 4px; z-index: 2; transform: translateY(-50%); background-color: #088178; width: {% if order.status == 'Pending' %}0%{% elif order.status == 'Paid' %}33%{% elif order.status == 'Shipped' %}66%{% elif order.status == 'Delivered' %}100%{% endif %}; transition: width 0.4s ease;"></div>
+
+                            <!-- Step 1: Processing Request -->
+                            <div class="text-center position-relative" style="z-index: 3; width: 60px;">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-1 text-white shadow-sm" style="width: 32px; height: 32px; background-color: #088178;">
+                                    <i class="fa fa-clock-o small" aria-hidden="true"></i>
+                                </div>
+                                <span class="small d-block text-truncate fw-semibold" style="font-size: 11px; color: #088178;">Pending</span>
+                            </div>
+
+                            <!-- Step 2: Confirmed Invoice Paid -->
+                            <div class="text-center position-relative" style="z-index: 3; width: 60px;">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-1 shadow-sm {% if order.status == 'Paid' or order.status == 'Shipped' or order.status == 'Delivered' %}bg-success text-white{% else %}bg-white border border-secondary-subtle text-muted{% endif %}" style="width: 32px; height: 32px; background-color: {% if order.status == 'Paid' or order.status == 'Shipped' or order.status == 'Delivered' %}#088178{% endif %};">
+                                    <i class="fa fa-check small" aria-hidden="true"></i>
+                                </div>
+                                <span class="small d-block text-truncate {% if order.status == 'Paid' or order.status == 'Shipped' or order.status == 'Delivered' %}fw-bold text-success{% else %}text-muted{% endif %}" style="font-size: 11px;">Paid</span>
+                            </div>
+
+                            <!-- Step 3: Shipped Dispatch / In Transit -->
+                            <div class="text-center position-relative" style="z-index: 3; width: 60px;">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-1 shadow-sm {% if order.status == 'Shipped' or order.status == 'Delivered' %}bg-primary text-white{% else %}bg-white border border-secondary-subtle text-muted{% endif %}" style="width: 32px; height: 32px; background-color: {% if order.status == 'Shipped' or order.status == 'Delivered' %}#0d6efd{% endif %};">
+                                    <i class="fa fa-truck small" aria-hidden="true"></i>
+                                </div>
+                                <span class="small d-block text-truncate {% if order.status == 'Shipped' or order.status == 'Delivered' %}fw-bold text-primary{% else %}text-muted{% endif %}" style="font-size: 11px;">Shipped</span>
+                            </div>
+
+                            <!-- Step 4: Drop Off Delivered -->
+                            <div class="text-center position-relative" style="z-index: 3; width: 60px;">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-1 shadow-sm {% if order.status == 'Delivered' %}bg-secondary text-white{% else %}bg-white border border-secondary-subtle text-muted{% endif %}" style="width: 32px; height: 32px; background-color: {% if order.status == 'Delivered' %}#6c757d{% endif %};">
+                                    <i class="fa fa-home small" aria-hidden="true"></i>
+                                </div>
+                                <span class="small d-block text-truncate {% if order.status == 'Delivered' %}fw-bold text-secondary{% else %}text-muted{% endif %}" style="font-size: 11px;">Delivered</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Tools Row layout block: Invoice Download Links -->
+                <div class="text-end mt-3 border-top pt-3 border-light">
+                    {% if order.status != 'Pending' %}
+                        <a href="{% url 'print_invoice' order.id %}" target="_blank" class="btn btn-sm btn-outline-secondary px-3" style="border-radius: 4px; font-weight: 500;">
+                            <i class="fa fa-print" aria-hidden="true"></i> View Printable Receipt
+                        </a>
+                    {% else %}
+                        <span class="text-muted small"><i class="fa fa-info-circle" aria-hidden="true"></i> Invoices unlock upon wallet validation confirmation.</span>
+                    {% endif %}
+                </div>
+            </div>
         </div>
+        {% endfor %}
     {% else %}
         <div class="text-center py-5 border rounded bg-light">
             <h5>You haven't placed any orders yet.</h5>
-            <a href="{% url 'category_summary' %}" class="btn btn-primary mt-3" style="background: #088178; border: none;">Explore Products</a>
+            <a href="{% url 'category_summary' %}" class="btn btn-primary mt-3" style="background: #f30000; border: none; font-weight: 600;">Explore Store Items</a>
         </div>
     {% endif %}
 </div>

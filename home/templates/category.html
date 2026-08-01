@@ -2,17 +2,17 @@
 {% load static %}
 {% block content %}
 
+<!-- Header Navigation Bar Component Block -->
 <section id="header">
   <a href="{% url 'home' %}"><img src="{% static '/img/swika.png' %}" class="logo" alt="logo"></a>
   <div>
     <ul id="navbar">
-      <li><a class="active" href="{% url 'home' %}">Home</a></li>
-      <li><a href="{% url 'category_summary' %}">Shop</a></li>
+      <li><a href="{% url 'home' %}">Home</a></li>
+      <li><a class="active" href="{% url 'category_summary' %}">Shop</a></li>
       <li><a href="{% url 'blog' %}">Blog</a></li>
       <li><a href="{% url 'about' %}">About Us</a></li>
       <li><a href="{% url 'contact' %}">Contact</a></li>
       
-      <!-- Desktop Cart Counter (Unified ID to nav-cart-badge) -->
       <li id="lg-bag">
         <a href="{% url 'cart_summary' %}">
           <i style="font-size: 30px;" class="fa fa-shopping-cart" aria-hidden="true"></i>
@@ -22,14 +22,11 @@
        
       <a href="#" id="close"><i class="fa fa-window-close-o" aria-hidden="true"></i></a>
 
-        {% if user.is_authenticated %}
-        
-        <div class = "dropydown">
-          <button>{{ user.username }}</button>
+      {% if user.is_authenticated %}
+      <div class="dropydown">
+        <button>{{ user.username }}</button>
         <div class="dropdown-menu">
           <a href="{% url 'update_profile' %}" class="dropdown-items">Profile</a>
-          
-          <!-- FIX: Form now submits securely when link is clicked -->
           <form method="POST" action="{% url 'logout' %}" style="margin: 0;">
             {% csrf_token %}
             <a href="#" onclick="event.preventDefault(); this.parentElement.submit();" class="dropdown-items">Logout</a>
@@ -49,63 +46,66 @@
   </div>
 
   <div id="mobile">
-    <!-- FIX: Removed the hash character inside the ID name attribute -->
     <a href="{% url 'cart_summary' %}"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
     <button><span class="quantity nav-cart-badge-class" id="nav-cart-badge">{{ cart|length }}</span></button>
     <i id="bar" class="fa fa-bars" aria-hidden="true"></i>
   </div>
 </section>
 
-    <section  id="page-header">
+<section id="page-header" class="about-header" style="background-color: #088178; text-align: center; color: #fff; padding: 40px 0;">
+    <!-- FIX 1: Corrected closing header tag / Added dynamic category name title context display -->
+    <h2>EXPLORE {{ category.name|upper }}</h2>
+    <p>Premium selection curated just for you!</p>
+</section>
 
-       <h2>SHOP NOW!<h2>
-       
-       <p>Save more with a discount of 20%!</p>
-       
-    </section>
+<section id="product1" class="section-p1">
+    <div class="product-container">
+        {% for product in products %}
+        <div class="product" style="border: 1px solid #ececec; border-radius: 20px; padding: 10px 12px; width: 23%; min-width: 250px; margin: 15px 0; cursor: pointer; box-shadow: 20px 20px 30px rgba(0,0,0,0.02); transition: 0.2s ease; position: relative;">
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width: 100%; border-radius: 20px;">
+            <div class="description" style="text-align: start; padding: 10px 0;">
+                <span style="color: #606063; font-size: 12px;">Swika Brand</span>
+                <a href="{% url 'product' product.id %}" style="text-decoration: none;">
+                    <!-- FIX 2: Corrected closing name h5 tag -->
+                    <h5 style="padding-top: 7px; color: #1a1a1a; font-size: 14px;">{{ product.name }}</h5>
+                </a>
+                
+                <div class="star" style="padding-top: 4px;">
+                    <i class="fa fa-star" aria-hidden="true" style="font-size: 12px; color: #f3b51a;"></i>
+                    <i class="fa fa-star" aria-hidden="true" style="font-size: 12px; color: #f3b51a;"></i>
+                    <i class="fa fa-star" aria-hidden="true" style="font-size: 12px; color: #f3b51a;"></i>
+                    <i class="fa fa-star" aria-hidden="true" style="font-size: 12px; color: #f3b51a;"></i>
+                    <i class="fa fa-star" aria-hidden="true" style="font-size: 12px; color: #f3b51a;"></i>
+                </div>
+                
+                <!-- Updated price format mapping dynamic sales options automatically -->
+                <h4 style="padding-top: 7px; font-size: 15px; font-weight: 700; color: #088178;">
+                    Rs. {% if product.sale_price > 0 %}{{ product.sale_price }}{% else %}{{ product.price }}{% endif %}
+                </h4>
+            </div>
+            <a href="{% url 'product' product.id %}" style="width: 40px; height: 40px; line-height: 40px; border-radius: 50px; background-color: #e8f6ea; font-weight: 500; color: #088178; position: absolute; bottom: 20px; right: 20px; text-align: center; border: 1px solid #cce7d0;"><i class="fa fa-shopping-cart cart" aria-hidden="true"></i></a>
+        </div>
+        {% empty %}
+        <!-- FIX 3: Added clean fallback state template design in case category stock is empty -->
+        <div class="text-center w-100 py-5 mx-auto">
+            <h3 class="text-muted">No items are currently available in this category.</h3>
+            <a href="{% url 'category_summary' %}" class="btn btn-primary mt-3" style="background-color: #088178; border: none; padding: 10px 20px; border-radius: 4px; display: inline-block; text-decoration: none; color: #fff;">Back to Categories</a>
+        </div>
+        {% endfor %}
+    </div> <!-- FIX 4: Securely closed the product-container div cell wrapper here -->
+</section>
 
-    
-    
+{% if products %}
+<section id="pagination" class="section-p1">
+    <a href="#">1</a>
+    <a href="#">2</a>
+    <a href="#"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+</section>
+{% endif %}
 
-    <section id="product1" class="section-p1">
-        
-
-           <div class="product-container">
-
-           {% for product in products %}
-           <div class="product">
-           <img src="{{product.image.url}}" alt=""></img>
-           <div class="description">
-           <span>Swika</span>
-           <a href ="{% url 'product' product.id %}"><h5>{{product.name}}<h5></a>
-           <div class="star">
-           <i class="fa fa-star" aria-hidden="true"></i>
-           <i class="fa fa-star" aria-hidden="true"></i>
-           <i class="fa fa-star" aria-hidden="true"></i>
-           <i class="fa fa-star" aria-hidden="true"></i>
-           <i class="fa fa-star" aria-hidden="true"></i>
-           </div>
-
-           <h4>{{product.price}}</h4>
-
-           </div>
-
-           <a href="{% url 'product' product.id %}"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
-           
-           </div>
-
-             {% endfor %}
-
-           
-    
-
-    </section >
-    
-    <section id="pagination" class="section-p1">
-      <a href="#">1</a>
-      <a href="#">2</a>
-      <a href="#"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>
-
-    </section>
-   
-  {% endblock%}
+<FollowUp>
+If you want, tell me if you need help with:
+* Setting up the **product grid layout responsiveness CSS rules** to adapt to mobile dimensions cleanly.
+* Creating a **search query filter input widget** inside this page to search items within the category.
+</FollowUp>
+{% endblock %}
