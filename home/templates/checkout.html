@@ -65,7 +65,7 @@
 
             <!-- 1. eSewa Form Block -->
             <!-- FIX 1: Corrected form action link to point to the secure v2 sandbox endpoint -->
-            <form id="esewa-form" action="https://esewa.com.np" method="POST">
+            <form id="esewa-form" action="https://rc-epay.esewa.com.np/api/epay/main/v2/form" method="POST">
                 <input type="hidden" id="e_amount" name="amount" value="{{ cart_subtotal }}" required>
                 <input type="hidden" id="e_tax_amount" name="tax_amount" value="0" required>
                 <input type="hidden" id="e_total_amount" name="total_amount" value="" required>
@@ -92,7 +92,7 @@
                 <h5 style="font-weight: 700;">Scan Merchant Fonepay QR</h5>
                 <p class="text-muted small">Scan this QR code and pay the exact grand total via your banking app.</p>
                 <!-- FIX 2: Restored complete, fully parameter-mapped free live testing QR canvas engine -->
-                <img src="https://qrserver.com_{{ cart_subtotal }}" alt="Fonepay QR Code" class="img-fluid my-3" style="max-width: 200px; border: 4px solid #eee; border-radius: 8px;">
+                <img src="{% static '/img/Swika_QR_Code.jpg' %}" alt="Fonepay QR Code" class="img-fluid my-3" style="max-width: 200px; border: 4px solid #eee; border-radius: 8px;">
                 {% csrf_token %}
                 <button type="button" class="btn btn-dark w-100 mt-2 py-3 btn-checkout-action" style="font-weight: 600;" onclick="triggerFonepayVerification()">I Have Transferred Funds. Complete Checkout</button>
             </div>

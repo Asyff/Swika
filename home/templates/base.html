@@ -66,15 +66,15 @@
 
        <div class="col">
        <h4>About</h4>
-       <a href="#">About Us</a>
-       <a href="#">Contact Us</a>
+       <a href="{% url 'about' %}">About Us</a>
+       <a href="{% url 'contact' %}">Contact Us</a>
        </div>
 
        <div class="col">
        <h4>My Account</h4>
-       <a href="#">Sign In</a>
-       <a href="#">View Cart</a>
-       <a href="#">Track My Order</a>
+       <a href="{% url 'login' %}">Sign In</a>
+       <a href="{% url 'cart_summary' %}">View Cart</a>
+       <a href="{% url 'order_history' %}">Track My Order</a>
        <a href="#">Help</a>
        </div>
        <div class="copyright">
