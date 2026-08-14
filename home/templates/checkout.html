@@ -66,21 +66,21 @@
             <!-- 1. eSewa Form Block -->
             <!-- FIX 1: Corrected form action link to point to the secure v2 sandbox endpoint -->
             <form id="esewa-form" action="https://rc-epay.esewa.com.np/api/epay/main/v2/form" method="POST">
-                <input type="hidden" id="e_amount" name="amount" value="{{ cart_subtotal }}" required>
-                <input type="hidden" id="e_tax_amount" name="tax_amount" value="0" required>
-                <input type="hidden" id="e_total_amount" name="total_amount" value="" required>
-                <input type="hidden" id="e_transaction_uuid" name="transaction_uuid" value="" required>
-                <input type="hidden" id="e_product_code" name="product_code" value="EPAYTEST" required>
-                <input type="hidden" id="e_product_service_charge" name="product_service_charge" value="0" required>
-                <input type="hidden" id="e_product_delivery_charge" name="product_delivery_charge" value="0" required>
-                <!-- Updated landing endpoints to point to standard localhost paths for safe sandbox loops -->
-                <input type="hidden" id="e_success_url" name="success_url" value="http://localhost:8000/esewa-success/" required>
-                <input type="hidden" id="e_failure_url" name="failure_url" value="http://localhost:8000/checkout/" required>
-                <input type="hidden" id="e_signed_field_names" name="signed_field_names" value="total_amount,transaction_uuid,product_code" required>
-                <input type="hidden" id="e_signature" name="signature" value="" required>
-                
-                <button type="submit" class="btn btn-success btn-lg w-100 btn-checkout-action" style="background: #60bb46; border: none; font-weight: 700; padding: 14px;">Pay with eSewa</button>
-            </form>
+    <!-- Inject Django variables directly into total_amount or rely entirely on your JS context -->
+    <input type="hidden" id="e_amount" name="amount" value="{{ cart_subtotal }}" required>
+    <input type="hidden" id="e_tax_amount" name="tax_amount" value="0" required>
+    <input type="hidden" id="e_total_amount" name="total_amount" value="" required>
+    <input type="hidden" id="e_transaction_uuid" name="transaction_uuid" value="" required>
+    <input type="hidden" id="e_product_code" name="product_code" value="EPAYTEST" required>
+    <input type="hidden" id="e_product_service_charge" name="product_service_charge" value="0" required>
+    <input type="hidden" id="e_product_delivery_charge" name="product_delivery_charge" value="0" required>
+    <input type="hidden" id="e_success_url" name="success_url" value="http://localhost:8000/esewa-success/" required>
+    <input type="hidden" id="e_failure_url" name="failure_url" value="http://localhost:8000/checkout/" required>
+    <input type="hidden" id="e_signed_field_names" name="signed_field_names" value="total_amount,transaction_uuid,product_code" required>
+    <input type="hidden" id="e_signature" name="signature" value="" required>
+    
+    <button type="submit" class="btn btn-success btn-lg w-100 btn-checkout-action" style="background: #60bb46; border: none; font-weight: 700; padding: 14px;">Pay with eSewa</button>
+</form>
 
             <!-- 2. Khalti Block -->
             <div id="khalti-payment-wrapper" style="display: none;">
@@ -89,14 +89,21 @@
 
             <!-- 3. Fonepay Block -->
             <div id="fonepay-payment-wrapper" style="display: none;" class="text-center p-4 border rounded bg-white shadow-sm">
-                <h5 style="font-weight: 700;">Scan Merchant Fonepay QR</h5>
-                <p class="text-muted small">Scan this QR code and pay the exact grand total via your banking app.</p>
-                <!-- FIX 2: Restored complete, fully parameter-mapped free live testing QR canvas engine -->
-                <img src="{% static '/img/Swika_QR_Code.jpg' %}" alt="Fonepay QR Code" class="img-fluid my-3" style="max-width: 200px; border: 4px solid #eee; border-radius: 8px;">
-                {% csrf_token %}
-                <button type="button" class="btn btn-dark w-100 mt-2 py-3 btn-checkout-action" style="font-weight: 600;" onclick="triggerFonepayVerification()">I Have Transferred Funds. Complete Checkout</button>
-            </div>
+    <h5 style="font-weight: 700;">Scan Merchant Fonepay QR</h5>
+    <p class="text-muted small">Open your mobile banking app, launch the camera scanner, and scan the QR code to transfer exactly <strong>Rs.{{ totals }}</strong></p>
+    
+    <img src="https://qrserver.com_{{ totals }}" alt="Fonepay QR Code" class="img-fluid my-3" style="max-width: 200px; border: 4px solid #eee;">
+    
+    <!-- NEW: Payment Receipt Upload Field -->
+    <div class="mb-4 text-start mx-auto" style="max-width: 350px;">
+        <label for="fonepay_screenshot" class="form-label fw-semibold small text-dark">Upload Payment Success Screenshot <span class="text-danger">*</span></label>
+        <input type="file" id="fonepay_screenshot" class="form-control" accept="image/*" required>
+        <div class="form-text" style="font-size: 11px;">Please upload the transaction confirmation screenshot to verify your payment.</div>
+    </div>
 
+    {% csrf_token %}
+    <button type="button" class="btn btn-dark w-100 py-3" style="font-weight: 600;" onclick="triggerFonepayVerification()">Submit Receipt & Confirm Order</button>
+</div>
             <!-- 4. Cash on Delivery Block -->
             <div id="cod-payment-wrapper" style="display: none;">
                 <button type="button" class="btn btn-primary btn-lg w-100 btn-checkout-action" style="background: #0d6efd; border: none; font-weight: 700; padding: 14px;" onclick="triggerCodOrder()">Place Order via Cash on Delivery</button>
@@ -133,13 +140,9 @@
                         <span>Cart Subtotal:</span>
                         <span class="fw-semibold">Rs. <span id="summary-subtotal">{{ cart_subtotal }}</span></span>
                     </li>
-                    <li class="list-group-item d-flex justify-content-between px-0 bg-transparent">
-                        <span>Shipping Delivery Charge:</span>
-                        <span class="fw-semibold text-primary">+ Rs. <span id="summary-shipping">50</span></span>
-                    </li>
                     <li class="list-group-item d-flex justify-content-between px-0 pt-3 bg-transparent" style="border-top: 2px dashed #ddd;">
                         <span style="font-size: 18px;"><strong>Grand Total:</strong></span>
-                        <strong style="font-size: 18px; color: #20C9DF;">Rs. <span id="summary-grand-total">0</span></strong>
+                        <strong style="font-size: 18px; color: #20C9DF;">Rs. <span id="summary-grand-total">{{ totals }}</span></strong>
                     </li>
                 </ul>
             </div>

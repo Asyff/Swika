@@ -796,6 +796,188 @@ footer .copyright{
         width: 70%;
         padding-top: 1rem;
     }
+
+    /* 1. Reset Spacing for Page Containers */
+    .section-p1 {
+        padding: 20px !important;
+    }
+
+    /* 2. Make Table Layout Responsive (Stack Rows Vertically into Cards) */
+    #cart {
+        padding: 10px;
+    }
+
+    #cart table {
+        width: 100% !important;
+        display: block;
+    }
+
+    /* Hide the horizontal table headers entirely on mobile */
+    #cart table thead {
+        display: none;
+    }
+
+    #cart table tbody {
+        display: block;
+        width: 100%;
+    }
+
+    /* Transform each row into an independent card block */
+    #cart table tbody tr {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        border: 1px solid #e2e9e1;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 20px;
+        background-color: #fff;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        position: relative;
+    }
+
+    #cart table tbody tr td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100% !important;
+        text-align: left !important;
+        padding: 8px 0 !important;
+        border: none;
+    }
+
+    /* 3. Style and Align Data Labels Inside Cells Dynamically */
+    #cart table tbody tr td::before {
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 12px;
+        color: #777;
+    }
+
+    /* Inject descriptive text titles dynamically before mobile layout elements */
+    #cart table tbody tr td:nth-child(2)::before { content: "Image:"; }
+    #cart table tbody tr td:nth-child(3)::before { content: "Product:"; }
+    #cart table tbody tr td:nth-child(4)::before { content: "Price:"; }
+    #cart table tbody tr td:nth-child(5)::before { content: "Quantity:"; }
+    #cart table tbody tr td:nth-child(6)::before { content: "Subtotal:"; }
+
+    /* Special treatment for the absolute positioned delete icon */
+    #cart table tbody tr td:nth-child(1) {
+        position: absolute;
+        top: 5px;
+        right: 15px;
+        width: auto !important;
+        padding: 0 !important;
+        z-index: 5;
+    }
+    
+    #cart table tbody tr td:nth-child(1)::before {
+        content: "" !important; /* Remove text wrapper string for delete cell layout */
+    }
+
+    /* Center product image rendering frame sizing */
+    #cart table img {
+        width: 60px;
+        height: auto;
+        object-fit: contain;
+    }
+
+    /* Center aligned content layouts settings overrides */
+    #cart table td:nth-child(5) input {
+        width: 60px;
+        padding: 6px;
+        margin: 0;
+    }
+
+    /* 4. Convert Checkout Totals Section into stacked presentation blocks */
+    #cart-add {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    #coupon, #subtotal {
+        width: 100% !important;
+        margin-bottom: 25px;
+    }
+
+    #subtotal {
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    #subtotal a {
+        display: block !important;
+        text-align: center;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* 1. Stack the image panel and data panel vertically instead of side-by-side */
+    #productdetails {
+        flex-direction: column;
+        margin-top: 10px;
+        padding: 15px !important; /* Tighten container padding for smaller screens */
+    }
+
+    /* 2. Expand image workspace box to utilize full screen width safely */
+    #productdetails .single-pro-image {
+        width: 100% !important;
+        margin-right: 0 !important; /* Clear horizontal desktop margin overrides */
+        margin-bottom: 25px; /* Add breathing room below gallery carousel elements */
+    }
+
+    /* Keep thumbnail gallery layouts neatly spaced on tiny screens */
+    .small-img-group {
+        margin-top: 10px !important;
+    }
+
+    /* 3. Expand details info text box to utilization constraints */
+    #productdetails .single-pro-details {
+        width: 100% !important;
+        padding-top: 0 !important; /* Top padding is no longer needed since it's stacked */
+    }
+
+    #productdetails .single-pro-details h2 {
+        font-size: 22px; /* Optimize title text sizes slightly for screens */
+        margin-top: 5px;
+        margin-bottom: 10px;
+    }
+
+    #productdetails .single-pro-details h3 {
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+
+    /* 4. Align Input Controls Container Block Row Elements */
+    #productdetails .single-pro-details .d-flex {
+        flex-wrap: wrap; /* Wraps action items if a narrow screen bottlenecks space */
+        gap: 10px !important;
+    }
+
+    /* Expand input elements for effortless finger tapping */
+    #productdetails .single-pro-details input {
+        width: 65px !important;
+        height: 45px !important;
+        margin-right: 0 !important;
+    }
+
+    /* Make add-to-cart button responsive and wider for mobile thumbs */
+    #productdetails .single-pro-details button {
+        width: auto !important;
+        flex-grow: 1; /* Allows button to fill empty space dynamically next to input */
+        max-width: 200px;
+        height: 45px !important;
+        padding: 0 20px !important;
+        font-weight: 600;
+        border-radius: 8px !important; /* Smoothed corner formatting matching inputs */
+    }
+
+    /* Ensure text description spacing rules parse softly */
+    #productdetails .single-pro-details span {
+        line-height: 22px;
+        font-size: 14px;
+    }
+
 }
 
 @media  (768px<= width<= 1199px){
@@ -1068,7 +1250,7 @@ footer .copyright{
 }
 
 #contact-details{
-    display: flex;
+    
     align-items: center;
     justify-content: space-between;
 }
@@ -1110,8 +1292,8 @@ footer .copyright{
 }
 
 #contact-details .map{
-    width: 55%;
-    height: 400px;
+    width: 100%;
+    height: 600px;
 }
 
 #contact-details .map iframe{

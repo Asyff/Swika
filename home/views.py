@@ -11,10 +11,12 @@ from django.core.exceptions import PermissionDenied
 import hmac
 import hashlib
 import base64
+from django.contrib.auth import update_session_auth_hash # Crucial: stops logout on password change
+from django.contrib.auth.forms import PasswordChangeForm
+from .forms import UserUpdateForm, ProfileForm
 
 # Unified App Imports
 from .models import Order, Product, Profile, Category
-from .forms import ProfileForm
 from cart.cart import Cart
 from cart.models import PersistentCartItem# Active DB cart model tracking row
 from .forms import CategoryForm
@@ -128,16 +130,45 @@ def register_user(request):
 @login_required
 def update_profile(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
-    if request.method == 'POST':
-        form = ProfileForm(request.POST, instance=profile)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Your shipping information has been updated!")
-            return redirect('update_profile')
-    else:
-        form = ProfileForm(instance=profile)
-    return render(request, "update_profile.html", {"form": form})
 
+    if request.method == 'POST':
+        # 1. Check if the user is submitting a Password Change Action
+        if 'change_password' in request.POST:
+            pass_form = PasswordChangeForm(request.user, request.POST)
+            user_form = UserUpdateForm(instance=request.user)
+            profile_form = ProfileForm(instance=profile)
+            
+            if pass_form.is_valid():
+                user = pass_form.save()
+                # Keeps the current browser logged in after security credential changes
+                update_session_auth_hash(request, user)
+                messages.success(request, "Your security password has been changed successfully!")
+                return redirect('update_profile')
+            else:
+                messages.error(request, "Password update failed. Please check the requirements below.")
+
+        # 2. Else user is updating standard profile detail fields
+        else:
+            user_form = UserUpdateForm(request.POST, instance=request.user)
+            profile_form = ProfileForm(request.POST, instance=profile)
+            pass_form = PasswordChangeForm(request.user)
+
+            if user_form.is_valid() and profile_form.is_valid():
+                user_form.save()
+                profile_form.save()
+                messages.success(request, "Your personal information has been updated successfully!")
+                return redirect('update_profile')
+    else:
+        # Standard load instance mappings
+        user_form = UserUpdateForm(instance=request.user)
+        profile_form = ProfileForm(instance=profile)
+        pass_form = PasswordChangeForm(request.user)
+        
+    return render(request, "update_profile.html", {
+        "user_form": user_form,
+        "profile_form": profile_form,
+        "pass_form": pass_form
+    })
 
 # ==================== CONSOLIDATED CART AND PAYMENT CONTROLLER ====================
 
@@ -174,7 +205,7 @@ def checkout(request):
     })
 
 # UNIFIED CHECKOUT ORDER WRITER CONSOLE ENGINE
-def create_database_orders(request, fallback_address_gateway, checkout_phone=None, checkout_address=None, initial_status='Paid'):
+def create_database_orders(request, fallback_address_gateway, checkout_phone=None, checkout_address=None, receipt_file=None, initial_status='Paid'):
     cart = Cart(request)
     quantities = cart.get_quants()
     profile = request.user.profile
@@ -182,69 +213,35 @@ def create_database_orders(request, fallback_address_gateway, checkout_phone=Non
     final_address = checkout_address if checkout_address else (profile.shipping_address if profile.shipping_address else fallback_address_gateway)
     final_phone = checkout_phone if checkout_phone else (profile.phone if profile.phone else "N/A")
 
-    # 1. Create the permanent order entries inside your loop
-    for product_obj in cart.get_prods():
-        product_id_str = str(product_obj.id)
+    for product in cart.get_prods():
+        product_id_str = str(product.id)
         if product_id_str in quantities:
             qty = quantities[product_id_str]
-            purchase_price = product_obj.sale_price if product_obj.sale_price > 0 else product_obj.price
+            purchase_price = product.sale_price if product.sale_price > 0 else product.price
             
+            # 1. Create long-term order fulfillment row
             Order.objects.create(
-                user=request.user, product=product_obj, quantity=qty,
-                address=final_address, phone=final_phone,
-                status=initial_status, price_at_purchase=purchase_price
+                user=request.user,
+                product=product,
+                quantity=qty,
+                address=final_address,
+                phone=final_phone,
+                price_at_purchase=purchase_price,
+                payment_receipt=receipt_file,
+                status=initial_status
             )
             
-            if hasattr(product_obj, 'stock_quantity'):
-                product_obj.stock_quantity = max(0, product_obj.stock_quantity - qty)
-                product_obj.save()
+            # 2. Deduct inventory stock numbers
+            if hasattr(product, 'stock_quantity'):
+                product.stock_quantity = max(0, product.stock_quantity - qty)
+                product.save()
+            
+    # 3. FIX: CLEAR PERMANENT DATABASE CART ITEMS FIRST
+    # This prevents the Cart.__init__ constructor from pulling old items back on page load
+    PersistentCartItem.objects.filter(user=request.user).delete()
 
-    # 2. AUTOMATED EMAIL DISPATCH HOOK (Fires immediately right after loop completion)
-    try:
-        # Fetch the exact matching order rows we just recorded in this transaction
-        saved_orders = Order.objects.filter(user=request.user).order_by('-date')[:len(quantities)]
-        compiled_grand_total = sum(order.total_cost for order in saved_orders)
-        
-        user_display_name = f"{request.user.first_name} {request.user.last_name}".strip()
-        if not user_display_name:
-            user_display_name = request.user.username
-
-        # Compile email context parameters
-        email_context = {
-            'user_name': user_display_name,
-            'orders': saved_orders,
-            'grand_total': compiled_grand_total,
-            'delivery_address': final_address,
-            'delivery_phone': final_phone
-        }
-        
-        # Parse template into pure clean HTML characters string context payload
-        html_body = render_to_string('emails/invoice_email.html', email_context)
-        
-        # Structure secure message parameters envelope handles
-        email_message = EmailMessage(
-            subject=f"Swika Estore - Order Confirmation Invoice Receipt (#ORD-00{request.user.id})",
-            body=html_body,
-            to=[request.user.email]
-        )
-        email_message.content_subtype = "html"  # Force mail filters to render CSS grids
-        email_message.send(fail_silently=True)   # Prevents view hangs if internet server delays
-        print(f"Automated invoice receipt successfully emailed to: {request.user.email}")
-        
-    except Exception as e:
-        print("Automated email generator system error warning: ", e)
-
-    # 3. HARDEST BULLETPROOF SYSTEM CART RESETS EXTINCTION PURGES
-    # Purge database rows tracking elements first
-    try:
-        from cart.models import PersistentCartItem
-        PersistentCartItem.objects.filter(user=request.user).delete()
-    except Exception:
-        pass
-
-    # Wipe cookie session variables completely
+    # 4. CLEAR ACTIVE SESSION CART
     request.session['session_key'] = {}
-    cart.cart = {}
     request.session.modified = True
     
     
@@ -254,20 +251,21 @@ def payment_success(request):
 
 def generate_esewa_signature(request):
     if request.method == 'POST':
-        secret_key = "8gBm/:&EnhH.1/q" 
+        # Use the standard Sandbox Secret Key for EPAYTEST
+        secret_key = "8gBm/:&EnhH" 
+        
+        # Ensure values are read cleanly without removing valid float/decimal places
         total_amount = request.POST.get('total_amount', '').strip()
         transaction_uuid = request.POST.get('transaction_uuid', '').strip()
         product_code = request.POST.get('product_code', '').strip()
 
-        if '.' in total_amount:
-            try:
-                total_amount = str(int(float(total_amount)))
-            except ValueError:
-                pass
-
+        # Build the exact message string string as mandated by eSewa v2 rules
         data_to_sign = f"total_amount={total_amount},transaction_uuid={transaction_uuid},product_code={product_code}"
+        
+        # Hashing process
         secret_bytes = bytes(secret_key, 'utf-8')
         data_bytes = bytes(data_to_sign, 'utf-8')
+        
         hmac_hash = hmac.new(secret_bytes, data_bytes, hashlib.sha256).digest()
         encoded_signature = base64.b64encode(hmac_hash).decode('utf-8')
 
@@ -275,7 +273,7 @@ def generate_esewa_signature(request):
             'signature': encoded_signature,
             'clean_amount': total_amount
         })
-
+        
 @login_required
 def esewa_success(request):
     create_database_orders(request, "Paid via eSewa Portal", initial_status='Paid')
@@ -290,39 +288,37 @@ def khalti_success(request):
 @login_required
 def fonepay_success(request):
     if request.method == 'POST':
-        cart = Cart(request)
-        quantities = cart.get_quants()
-        for p in cart.get_prods():
-            if str(p.id) in quantities and (p.stock_quantity <= 0 or p.stock_quantity < quantities[str(p.id)]):
-                return JsonResponse({'status': 'out_of_stock', 'error': f"'{p.name}' is out of stock!"}, status=400)
+        typed_phone = request.POST.get('phone', '').strip()
+        typed_address = request.POST.get('shipping_address', '').strip()
+        
+        # EXTRACT FILE: Pull the uploaded file from request.FILES dictionary safely
+        uploaded_receipt = request.FILES.get('payment_receipt')
 
-        p_phone = request.POST.get('phone', '').strip()
-        p_addr = request.POST.get('shipping_address', '').strip()
-        region = request.POST.get('region', '').strip()
-        full_addr = f"[{region}] {p_addr}"
-        create_database_orders(request, full_addr, p_phone, full_addr, initial_status='Paid')
-        return JsonResponse({'status': 'success'})
-    return JsonResponse({'error': 'Invalid request'}, status=400)
+        create_database_orders(
+            request, 
+            fallback_address_gateway="Paid via Fonepay Mobile QR Scan",
+            checkout_phone=typed_phone,
+            checkout_address=typed_address,
+            receipt_file=uploaded_receipt # Pass the image variable
+        )
+        return JsonResponse({'status': 'verified'})
         
 @login_required
 def cod_success(request):
-    if request.method == 'POST':
-        cart = Cart(request)
-        quantities = cart.get_quants()
+    if request.method == 'POST' or request.method == 'GET':
+        profile = request.user.profile
         
-        # Guard clause: check inventory levels first
-        for p in cart.get_prods():
-            if str(p.id) in quantities and (p.stock_quantity <= 0 or p.stock_quantity < quantities[str(p.id)]):
-                return JsonResponse({'status': 'out_of_stock', 'error': f"'{p.name}' is out of stock!"}, status=400)
-
-        p_phone = request.POST.get('phone', '').strip()
-        p_addr = request.POST.get('shipping_address', '').strip()
-        region = request.POST.get('region', '').strip()
-        full_addr = f"[{region}] {p_addr}"
+        # Call helper, flagging initial_status as 'Pending' since money isn't collected yet
+        create_database_orders(
+            request, 
+            fallback_address_gateway="Cash on Delivery (COD)",
+            checkout_phone=profile.phone,
+            checkout_address=profile.shipping_address,
+            initial_status='Pending' # Matches your model's choices tuple
+        )
         
-        create_database_orders(request, full_addr, p_phone, full_addr, initial_status='Pending')
-        return JsonResponse({'status': 'success'})
-    return JsonResponse({'error': 'Invalid request'}, status=400)
+        messages.success(request, "Order placed successfully via Cash on Delivery!")
+        return redirect('payment_success')
 
 
 # ==================== ADMINISTRATIVE FULFILLMENT INTERFACE ====================

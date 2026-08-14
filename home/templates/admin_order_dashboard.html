@@ -134,14 +134,23 @@
                 <!-- COLUMN 2: Beautiful Local Gateway Identifier Badges -->
                 <td>
                     {% if "esewa" in order.address|lower or "paid via esewa" in order.address|lower %}
-                        <span class="badge text-white" style="background-color: #60bb46; font-size: 12px;">eSewa</span>
-                    {% elif "khalti" in order.address|lower %}
-                        <span class="badge text-white" style="background-color: #5c2d91; font-size: 12px;">Khalti</span>
-                    {% elif "fonepay" in order.address|lower %}
-                        <span class="badge text-white" style="background-color: #dc3545; font-size: 12px;">Fonepay</span>
-                    {% else %}
-                        <span class="badge bg-secondary" style="font-size: 12px;">Local Payment</span>
-                    {% endif %}
+        <span class="badge text-white" style="background-color: #60bb46; font-size: 12px;">eSewa</span>
+    {% elif "khalti" in order.address|lower %}
+        <span class="badge text-white" style="background-color: #5c2d91; font-size: 12px;">Khalti</span>
+    {% elif "fonepay" in order.address|lower %}
+        <span class="badge text-white" style="background-color: #dc3545; font-size: 12px;">Fonepay</span>
+        
+        <!-- NEW: Render a view-receipt link if a screenshot image exists -->
+        {% if order.payment_receipt %}
+            <div class="mt-1">
+                <a href="{{ order.payment_receipt.url }}" target="_blank" class="text-danger small fw-bold" style="text-decoration: none;">
+                    <i class="fa fa-file-image-o" aria-hidden="true"></i> View Screenshot
+                </a>
+            </div>
+        {% endif %}
+    {% else %}
+        <span class="badge bg-secondary" style="font-size: 12px;">Local Payment</span>
+    {% endif %}
                 </td>
 
                 <td>

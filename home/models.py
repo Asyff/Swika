@@ -61,6 +61,11 @@ class Order(models.Model):
     @property
     def total_cost(self):
         return round(float(self.price_at_purchase) * self.quantity, 2)
+    
+    payment_receipt = models.ImageField(upload_to='receipts/', blank=True, null=True)
+
+    def __str__(self):
+        return f"Order #{self.id} - {self.user.username} - {self.product.name} (x{self.quantity})"
 
 
 # ==================== USER PROFILE EXTENSION LAYER ====================

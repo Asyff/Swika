@@ -50,6 +50,10 @@ function calculateDynamicShipping() {
 function generateEsewaSignature() {
     const productCode = $('#e_product_code').val();
 
+    // 1. Force the HTML inputs to have the exact values you are passing to the backend hash generator
+    $('#e_total_amount').val(activeGrandTotal);
+    $('#e_transaction_uuid').val(finalTransactionUuid);
+
     $.ajax({
         type: 'POST',
         url: '/generate-esewa-signature/',
@@ -60,6 +64,7 @@ function generateEsewaSignature() {
             'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
         },
         success: function(response) {
+            // 2. Assign the cleanly generated backend signature
             $('#e_signature').val(response.signature);
         }
     });
@@ -123,52 +128,37 @@ function initializeKhaltiEngine() {
 }
 
 function triggerFonepayVerification() {
-    let typedPhone = $('#id_phone').val() || $('input[placeholder="Phone Number"]').val() || "";
-    let typedAddress = $('#id_shipping_address').val() || $('input[placeholder="123 Main St"]').val() || "";
-    let selectedRegion = $('#shipping-region option:selected').text();
-
-    if (!typedPhone.trim() || !typedAddress.trim()) {
-        showCustomErrorToast("Please fill out your Phone Number and Delivery Address fields first.");
+    // 1. Validate if the user actually chose a screenshot file
+    let fileInput = document.getElementById('fonepay_screenshot');
+    
+    if (fileInput.files.length === 0) {
+        alert("Please upload your payment success screenshot first before confirming.");
         return;
     }
 
+    // 2. Fetch standard text fields from your profile forms
+    let inputPhone = $('#id_phone').val() || ""; 
+    let inputAddress = $('#id_shipping_address').val() || "";
+
+    // 3. Construct a standard multipart FormData object to package the file binary stream
+    let formData = new FormData();
+    formData.append('phone', inputPhone);
+    formData.append('shipping_address', inputAddress);
+    formData.append('payment_receipt', fileInput.files[0]); // Attaches the raw file
+    formData.append('csrfmiddlewaretoken', $('input[name=csrfmiddlewaretoken]').val());
+
     $.ajax({
         type: 'POST',
-        url: '/fonepay-success/', 
-        data: {
-            'phone': typedPhone,
-            'shipping_address': typedAddress,
-            'region': selectedRegion,
-            'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
-        },
+        url: '/fonepay-success/',
+        data: formData,
+        processData: false, // CRITICAL: Stop jQuery from flattening data into query string parameters
+        contentType: false, // CRITICAL: Force browser to automatically establish multi-part boundary fields
         success: function(response) {
-            $('#cart_quantity').text('0');
-            $('#nav-cart-badge').text('0');
-            $('.quantity').text('0');
-            $('.nav-cart-badge-class').text('0');
-            
-            window.location.replace('/payment-success/');
+            window.location.href = '/payment-success/';
         },
-        error: function(xhr) {
-            let errorMsg = "Fulfillment processing failure.";
-            if (xhr.responseText) {
-                try {
-                    let errData = JSON.parse(xhr.responseText);
-                    if (errData.error) {
-                        errorMsg = errData.error;
-                    }
-                    if (errData.status === 'out_of_stock') {
-                        showCustomErrorToast(errorMsg + " Redirecting back to cart...");
-                        setTimeout(function() {
-                            window.location.replace('/cart_summary/'); 
-                        }, 3000);
-                        return;
-                    }
-                } catch(e) {
-                    console.error("Failed to parse JSON response: ", e);
-                }
-            }
-            showCustomErrorToast(errorMsg);
+        error: function(xhr, errmsg, err) {
+            console.error("Fonepay verification crash error: " + errmsg);
+            alert("Something went wrong during file upload. Please try again.");
         }
     });
 }
