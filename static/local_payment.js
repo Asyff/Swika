@@ -5,216 +5,73 @@
 const finalTransactionUuid = "order_" + Date.now();
 let activeGrandTotal = 0; // FIX 1: Declared globally at the top of your namespace file
 
-// Execute calculations immediately when the document is fully ready in the browser
-$(document).ready(function() {
-    if (typeof orderTotalAmount !== 'undefined' && parseFloat(orderTotalAmount) === 0) {
-        $('#cart_quantity').text('0');
-        $('#nav-cart-badge').text('0');
-        $('.quantity').text('0');
+let activePaymentMethod = 'fonepay';
+
+// 1. Manages form display switching smoothly without page reloads
+function switchLocalGateway(method) {
+    activePaymentMethod = method;
+    
+    if (method === 'fonepay') {
+        $('#fonepay-fields-block').show();
+        $('#cod-fields-block').hide();
+        // Update action button style context
+        $('#submit-order-btn').css('background-color', '#dc3545').text(`Submit Order (Rs.${orderTotalAmount})`);
+    } else if (method === 'cod') {
+        $('#fonepay-fields-block').hide();
+        $('#cod-fields-block').show();
+        $('#submit-order-btn').css('background-color', '#198754').text(`Confirm COD Order (Rs.${orderTotalAmount})`);
     }
-    $('#e_transaction_uuid').val(finalTransactionUuid);
-    
-    // 1. Initialize the layout starting calculations on page load
-    calculateDynamicShipping();
-    
-    // 2. Initialize and compile the Khalti Web Modal framework engine safely
-    initializeKhaltiEngine();
-});
-
-// Dynamic Shipping Recalculator Core Engine
-function calculateDynamicShipping() {
-    // Read select choices dropdown text nodes parameters
-    let region = $('#shipping-region').val();
-    let shippingCharge = (region === 'inside') ? 50 : 150;
-    
-    // Compute total financial balances
-    activeGrandTotal = baseCartSubtotal + shippingCharge;
-
-    // Update screen display elements instantly
-    $('#summary-shipping').text(shippingCharge);
-    $('#summary-grand-total').text(activeGrandTotal);
-
-    // Synchronize button price tags dynamically across all payment views
-    $('#esewa-form button').text(`Pay with eSewa (Rs. ${activeGrandTotal})`);
-    $('#khalti-button').text(`Pay with Khalti (Rs. ${activeGrandTotal})`);
-    $('#cod-payment-wrapper button').text(`Place Order via Cash on Delivery (Rs. ${activeGrandTotal})`);
-
-    // Update hidden eSewa payload parameters elements strings fields
-    $('#e_product_delivery_charge').val(shippingCharge);
-    $('#e_total_amount').val(activeGrandTotal);
-
-    // Re-trigger eSewa HMAC security hash signing
-    generateEsewaSignature();
 }
 
-function generateEsewaSignature() {
-    const productCode = $('#e_product_code').val();
+// 2. Compiles user input details and handles transaction submission requests
+function submitCheckoutOrder() {
+    let txnId = $('#fonepay_tx_code').val().trim();
+    let fileInput = document.getElementById('fonepay_screenshot_file');
 
-    // 1. Force the HTML inputs to have the exact values you are passing to the backend hash generator
-    $('#e_total_amount').val(activeGrandTotal);
-    $('#e_transaction_uuid').val(finalTransactionUuid);
-
-    $.ajax({
-        type: 'POST',
-        url: '/generate-esewa-signature/',
-        data: {
-            'total_amount': activeGrandTotal,
-            'transaction_uuid': finalTransactionUuid,
-            'product_code': productCode,
-            'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
-        },
-        success: function(response) {
-            // 2. Assign the cleanly generated backend signature
-            $('#e_signature').val(response.signature);
+    // Fonepay specific verification rules validation checks
+    if (activePaymentMethod === 'fonepay') {
+        if (!txnId) {
+            alert("Please enter your Fonepay Transaction ID.");
+            return;
         }
-    });
-}
-
-function switchLocalGateway(gateway) {
-    // Hide all checkout wrapper areas cleanly
-    $('#esewa-form').hide();
-    $('#khalti-payment-wrapper').hide();
-    $('#fonepay-payment-wrapper').hide();
-    $('#cod-payment-wrapper').hide();
-
-    // Show the selected layout framework container block
-    if (gateway === 'esewa') {
-        $('#esewa-form').show();
-    } else if (gateway === 'khalti') {
-        $('#khalti-payment-wrapper').show();
-    } else if (gateway === 'fonepay') {
-        $('#fonepay-payment-wrapper').show();
-    } else if (gateway === 'cod') {
-        $('#cod-payment-wrapper').show();
-    }
-}
-
-// Khalti Modal Configuration Initializer
-function initializeKhaltiEngine() {
-    if (typeof KhaltiCheckout === 'undefined') {
-        console.error("Khalti library delayed. Retrying hook in 300ms...");
-        setTimeout(initializeKhaltiEngine, 300);
-        return;
-    }
-
-    var khaltiConfig = {
-        "publicKey": "test_public_key_dc74e0fd57cb46cd93832aee0a507256", 
-        "productIdentity": finalTransactionUuid,
-        "productName": "EStore Cart Checkout",
-        "productUrl": window.location.origin,
-        "paymentPreference": ["KHALTI", "EBANKING", "MOBILE_BANKING"],
-        "eventHandler": {
-            onSuccess(payload) {
-                // Forward the success authorization parameters directly back to your success view
-                window.location.href = `/khalti-success/?token=${payload.token}&amount=${payload.amount}`;
-            },
-            onError(error) {
-                showCustomErrorToast("Khalti payment failed: " + error.message);
-            },
-            onClose() {
-                console.log("Khalti payment panel closed.");
-            }
+        if (fileInput.files.length === 0) {
+            alert("Please upload a screenshot of your verification payment success slip.");
+            return;
         }
-    };
-
-    var khaltiCheckout = new KhaltiCheckout(khaltiConfig);
-    
-    // Bind click trigger listener directly onto the Khalti element button
-    document.getElementById("khalti-button").onclick = function () {
-        // Convert to paisa required by the Khalti API engine (Rs. * 100)
-        let amountInPaisa = Math.round(parseFloat(activeGrandTotal) * 100);
-        khaltiCheckout.show({ amount: amountInPaisa });
-    };
-}
-
-function triggerFonepayVerification() {
-    // 1. Validate if the user actually chose a screenshot file
-    let fileInput = document.getElementById('fonepay_screenshot');
-    
-    if (fileInput.files.length === 0) {
-        alert("Please upload your payment success screenshot first before confirming.");
-        return;
     }
 
-    // 2. Fetch standard text fields from your profile forms
-    let inputPhone = $('#id_phone').val() || ""; 
-    let inputAddress = $('#id_shipping_address').val() || "";
+    // Toggle Loading Spinners ON
+    let originalBtnText = $('#submit-order-btn').text();
+    $('#submit-order-btn').html(`<span class="spinner-border spinner-border-sm" role="status"></span> Processing...`).prop('disabled', true);
 
-    // 3. Construct a standard multipart FormData object to package the file binary stream
+    // Build the dynamic Form Data payload module stream
     let formData = new FormData();
-    formData.append('phone', inputPhone);
-    formData.append('shipping_address', inputAddress);
-    formData.append('payment_receipt', fileInput.files[0]); // Attaches the raw file
+    formData.append('phone', $('#id_phone').val() || "");
+    formData.append('shipping_address', $('#id_shipping_address').val() || "");
+    formData.append('payment_method', activePaymentMethod); // Tells Django whether it is Fonepay or COD
     formData.append('csrfmiddlewaretoken', $('input[name=csrfmiddlewaretoken]').val());
 
+    // Only attach image variables if Fonepay interface path is chosen
+    if (activePaymentMethod === 'fonepay') {
+        formData.append('fonepay_txn_id', txnId);
+        formData.append('payment_screenshot', fileInput.files[0]);
+    }
+
     $.ajax({
         type: 'POST',
-        url: '/fonepay-success/',
+        url: '/fonepay-success/', // Unified processing views endpoint path name
         data: formData,
-        processData: false, // CRITICAL: Stop jQuery from flattening data into query string parameters
-        contentType: false, // CRITICAL: Force browser to automatically establish multi-part boundary fields
+        processData: false,
+        contentType: false,
         success: function(response) {
             window.location.href = '/payment-success/';
         },
         error: function(xhr, errmsg, err) {
-            console.error("Fonepay verification crash error: " + errmsg);
-            alert("Something went wrong during file upload. Please try again.");
+            alert("Checkout submission encountered an exception error. Please try again.");
+            $('#submit-order-btn').html(originalBtnText).prop('disabled', false);
         }
     });
 }
-
-function triggerCodOrder() {
-    let typedPhone = $('#id_phone').val() || $('input[placeholder="Phone Number"]').val() || "";
-    let typedAddress = $('#id_shipping_address').val() || $('input[placeholder="123 Main St"]').val() || "";
-    let selectedRegion = $('#shipping-region option:selected').text();
-
-    if (!typedPhone.trim() || !typedAddress.trim()) {
-        showCustomErrorToast("Please complete your Phone Number and Delivery Address fields first.");
-        return;
-    }
-
-    $.ajax({
-        type: 'POST',
-        url: '/cod-success/',
-        data: {
-            'phone': typedPhone,
-            'shipping_address': typedAddress,
-            'region': selectedRegion,
-            'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
-        },
-        success: function(response) {
-            $('#cart_quantity').text('0');
-            $('#nav-cart-badge').text('0');
-            $('.quantity').text('0');
-            $('.nav-cart-badge-class').text('0');
-            
-            window.location.replace('/payment-success/');
-        },
-        // FIX 2: Fully restored the missing closing code block syntax parameters
-        error: function(xhr) {
-            let errorMsg = "Fulfillment processing failure.";
-            if (xhr.responseText) {
-                try {
-                    let errData = JSON.parse(xhr.responseText);
-                    if (errData.error) {
-                        errorMsg = errData.error;
-                    }
-                    if (errData.status === 'out_of_stock') {
-                        showCustomErrorToast(errorMsg + " Redirecting back to cart...");
-                        setTimeout(function() {
-                            window.location.replace('/cart_summary/'); 
-                        }, 3000);
-                        return;
-                    }
-                } catch(e) {
-                    console.error("Failed to parse JSON response: ", e);
-                }
-            }
-            showCustomErrorToast(errorMsg);
-        }
-    });
-}
-
 function showCustomErrorToast(message) {
     $('#errorToastMessage').text(message);
     let toastEl = document.getElementById('errorToast');

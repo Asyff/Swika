@@ -4,150 +4,67 @@
 
 
 
+<hr class="my-4">
+<h4 class="mb-3" style="font-weight: 700;">Select Payment Method</h4>
 
-<div class="container my-5">
-    <div class="row g-5">
-        <!-- Left Column: Delivery Address, Region & Payment Selection -->
-        <div class="col-md-7">
-            <h4 class="mb-3" style="font-weight: 700;">Delivery & Billing Destination</h4>
+<!-- Interactive Radio Selection Toggles -->
+<div class="my-3">
+    <div class="form-check mb-2">
+        <input id="fonepay" name="paymentMethod" type="radio" class="form-check-input" checked required onclick="switchLocalGateway('fonepay')">
+        <label class="form-check-label" for="fonepay" style="cursor: pointer;"><strong>Fonepay (Mobile QR Scan)</strong></label>
+    </div>
+    <div class="form-check mb-2">
+        <input id="cod" name="paymentMethod" type="radio" class="form-check-input" required onclick="switchLocalGateway('cod')">
+        <label class="form-check-label" for="cod" style="cursor: pointer;"><strong>Cash on Delivery (COD)</strong></label>
+    </div>
+</div>
 
-            <div class="row g-3 mb-4">
-                <div class="col-sm-6">
-                    <label class="form-label">Full Name</label>
-                    <input type="text" class="form-control" value="{{ user_full_name }}" readonly>
-                </div>
-                <div class="col-sm-6">
-                    <label class="form-label">Email Address</label>
-                    <input type="email" class="form-control" value="{{ user_email }}" readonly>
-                </div>
+<hr class="my-4">
 
-                <!-- Region Selector: Calculates shipping price instantly -->
-                <div class="col-12">
-                    <label class="form-label" style="font-weight: 600;">Delivery Location (Region)</label>
-                    <select id="shipping-region" class="form-select" onchange="calculateDynamicShipping()">
-                        <option value="inside" selected>Inside Kathmandu Valley (Rs. 50)</option>
-                        <option value="outside">Outside Kathmandu Valley (Rs. 150)</option>
-                    </select>
-                </div>
-
-                {% for field in form %}
-                <div class="col-12 {% if field.name == 'city' or field.name == 'postal_code' %}col-md-6{% endif %}">
-                    <label class="form-label">{{ field.label }}</label>
-                    {{ field }}
-                </div>
-                {% endfor %}
-            </div>
-
-            <hr class="my-4">
-            
-            <h4 class="mb-3" style="font-weight: 700;">Select Local Payment Method</h4>
-            <div class="my-3">
-                <div class="form-check mb-2">
-                    <input id="esewa" name="paymentMethod" type="radio" class="form-check-input" checked required onclick="switchLocalGateway('esewa')">
-                    <label class="form-check-label" for="esewa" style="cursor: pointer;"><strong>eSewa Wallet</strong></label>
-                </div>
-                <div class="form-check mb-2">
-                    <input id="khalti" name="paymentMethod" type="radio" class="form-check-input" required onclick="switchLocalGateway('khalti')">
-                    <label class="form-check-label" for="khalti" style="cursor: pointer;"><strong>Khalti Digital Wallet</strong></label>
-                </div>
-                <div class="form-check mb-2">
-                    <input id="fonepay" name="paymentMethod" type="radio" class="form-check-input" required onclick="switchLocalGateway('fonepay')">
-                    <label class="form-check-label" for="fonepay" style="cursor: pointer;"><strong>Fonepay Interbank QR</strong></label>
-                </div>
-                <!-- Cash on Delivery Option -->
-                <div class="form-check mb-2">
-                    <input id="cod" name="paymentMethod" type="radio" class="form-check-input" required onclick="switchLocalGateway('cod')">
-                    <label class="form-check-label" for="cod" style="cursor: pointer;"><strong class="text-primary">Cash on Delivery (COD)</strong></label>
-                </div>
-            </div>
-
-            <hr class="my-4">
-
-            <!-- 1. eSewa Form Block -->
-            <!-- FIX 1: Corrected form action link to point to the secure v2 sandbox endpoint -->
-            <form id="esewa-form" action="https://rc-epay.esewa.com.np/api/epay/main/v2/form" method="POST">
-    <!-- Inject Django variables directly into total_amount or rely entirely on your JS context -->
-    <input type="hidden" id="e_amount" name="amount" value="{{ cart_subtotal }}" required>
-    <input type="hidden" id="e_tax_amount" name="tax_amount" value="0" required>
-    <input type="hidden" id="e_total_amount" name="total_amount" value="" required>
-    <input type="hidden" id="e_transaction_uuid" name="transaction_uuid" value="" required>
-    <input type="hidden" id="e_product_code" name="product_code" value="EPAYTEST" required>
-    <input type="hidden" id="e_product_service_charge" name="product_service_charge" value="0" required>
-    <input type="hidden" id="e_product_delivery_charge" name="product_delivery_charge" value="0" required>
-    <input type="hidden" id="e_success_url" name="success_url" value="http://localhost:8000/esewa-success/" required>
-    <input type="hidden" id="e_failure_url" name="failure_url" value="http://localhost:8000/checkout/" required>
-    <input type="hidden" id="e_signed_field_names" name="signed_field_names" value="total_amount,transaction_uuid,product_code" required>
-    <input type="hidden" id="e_signature" name="signature" value="" required>
+<!-- Unified Payment Execution Box Wrapper -->
+<div id="payment-box-wrapper" class="p-4 border rounded bg-white shadow-sm">
     
-    <button type="submit" class="btn btn-success btn-lg w-100 btn-checkout-action" style="background: #60bb46; border: none; font-weight: 700; padding: 14px;">Pay with eSewa</button>
-</form>
-
-            <!-- 2. Khalti Block -->
-            <div id="khalti-payment-wrapper" style="display: none;">
-                <button type="button" id="khalti-button" class="btn btn-primary btn-lg w-100 btn-checkout-action" style="background: #5c2d91; border: none; font-weight: 700; padding: 14px; color: #fff;">Pay with Khalti</button>
+    <!-- 1. FONEPAY FIELDS CONTAINER (Visible by default) -->
+    <div id="fonepay-fields-block">
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="badge bg-danger p-2" style="font-size: 13px;">Mobile QR Scan</span>
+            <h5 class="mb-0" style="font-weight: 700;">Scan Merchant QR</h5>
+        </div>
+        <p class="text-muted small">Open your Nepalese mobile banking app, scan the merchant QR code below, and transfer exactly <strong>Rs.{{ totals }}</strong></p>
+        
+        <div class="text-center my-3">
+            <img src="https://qrserver.com_{{ totals }}" alt="Fonepay QR Code" class="img-fluid" style="max-width: 180px; border: 4px solid #eee; border-radius: 8px;">
+        </div>
+        
+        <div class="text-start mt-3 p-3 bg-light rounded mb-3" style="border-left: 4px solid #dc3545;">
+            <div class="mb-3">
+                <label class="form-label fw-bold small text-dark">Fonepay Transaction ID / Trace ID</label>
+                <input type="text" id="fonepay_tx_code" class="form-control" placeholder="e.g. 84729104">
             </div>
+            <div class="mb-0">
+                <label class="form-label fw-bold small text-dark">Upload Payment Success Screenshot</label>
+                <input type="file" id="fonepay_screenshot_file" class="form-control" accept="image/*">
+            </div>
+        </div>
+    </div>
 
-            <!-- 3. Fonepay Block -->
-            <div id="fonepay-payment-wrapper" style="display: none;" class="text-center p-4 border rounded bg-white shadow-sm">
-    <h5 style="font-weight: 700;">Scan Merchant Fonepay QR</h5>
-    <p class="text-muted small">Open your mobile banking app, launch the camera scanner, and scan the QR code to transfer exactly <strong>Rs.{{ totals }}</strong></p>
-    
-    <img src="https://qrserver.com_{{ totals }}" alt="Fonepay QR Code" class="img-fluid my-3" style="max-width: 200px; border: 4px solid #eee;">
-    
-    <!-- NEW: Payment Receipt Upload Field -->
-    <div class="mb-4 text-start mx-auto" style="max-width: 350px;">
-        <label for="fonepay_screenshot" class="form-label fw-semibold small text-dark">Upload Payment Success Screenshot <span class="text-danger">*</span></label>
-        <input type="file" id="fonepay_screenshot" class="form-control" accept="image/*" required>
-        <div class="form-text" style="font-size: 11px;">Please upload the transaction confirmation screenshot to verify your payment.</div>
+    <!-- 2. CASH ON DELIVERY FIELDS CONTAINER (Hidden by default) -->
+    <div id="cod-fields-block" style="display: none;">
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="badge bg-success p-2" style="font-size: 13px;">Pay at Doorstep</span>
+            <h5 class="mb-0" style="font-weight: 700;">Cash on Delivery</h5>
+        </div>
+        <p class="text-muted small">No upfront electronic transaction is required. You will pay exactly <strong>Rs.{{ totals }}</strong> in cash directly to our delivery courier partner when the package reaches your address.</p>
+        <div class="alert alert-success small py-2 mb-3" style="border-radius: 4px;">
+            <i class="fa fa-info-circle" aria-hidden="true"></i> Please ensure your contact phone number is accurate for package delivery coordination.
+        </div>
     </div>
 
     {% csrf_token %}
-    <button type="button" class="btn btn-dark w-100 py-3" style="font-weight: 600;" onclick="triggerFonepayVerification()">Submit Receipt & Confirm Order</button>
-</div>
-            <!-- 4. Cash on Delivery Block -->
-            <div id="cod-payment-wrapper" style="display: none;">
-                <button type="button" class="btn btn-primary btn-lg w-100 btn-checkout-action" style="background: #0d6efd; border: none; font-weight: 700; padding: 14px;" onclick="triggerCodOrder()">Place Order via Cash on Delivery</button>
-            </div>
-        </div>
-
-        <!-- Right Side Column: Order Summary Card with Dynamic Math -->
-        <div class="col-md-5">
-            <div class="card shadow-sm p-4" style="border-radius: 8px;">
-                <h4 class="mb-3" style="color: #f30000; font-weight: 700;">Order Summary</h4>
-                <ul class="list-group mb-3 list-group-flush">
-                    {% for product in cart_products %}
-                    <li class="list-group-item px-0 bg-transparent">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div class="me-auto">
-                                <h6 class="my-0" style="font-weight: 600; color: #333;">{{ product.name }}</h6>
-                                <small class="text-muted">Quantity: {{ product.qty }}</small>
-                            </div>
-                            <span class="text-muted" style="font-weight: 500;">Rs. {{ product.total_price }}</span>
-                        </div>
-                        <!-- STOCK COUNTDOWN BANNER -->
-                        {% if product.stock_quantity <= 5 %}
-                        <div class="mt-1">
-                            <span class="badge bg-warning text-dark" style="font-size: 11px;">
-                                <i class="fa fa-hourglass-half" aria-hidden="true"></i> Hurry! Only {{ product.stock_quantity }} items left in stock.
-                            </span>
-                        </div>
-                        {% endif %}
-                    </li>
-                    {% endfor %}
-                    
-                    <!-- FIX 3: Restored completely closed mathematical breakdown blocks and grid wrappers -->
-                    <li class="list-group-item d-flex justify-content-between px-0 bg-transparent pt-3">
-                        <span>Cart Subtotal:</span>
-                        <span class="fw-semibold">Rs. <span id="summary-subtotal">{{ cart_subtotal }}</span></span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between px-0 pt-3 bg-transparent" style="border-top: 2px dashed #ddd;">
-                        <span style="font-size: 18px;"><strong>Grand Total:</strong></span>
-                        <strong style="font-size: 18px; color: #20C9DF;">Rs. <span id="summary-grand-total">{{ totals }}</span></strong>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
+    <button type="button" id="submit-order-btn" class="btn btn-danger btn-lg w-100 mt-2 py-3" style="background: #dc3545; border: none; font-weight: 700;" onclick="submitCheckoutOrder()">
+        <span class="spinner-border spinner-border-sm d-none" id="checkout-spinner" role="status"></span>
+        <span id="checkout-btn-text">Submit Order (Rs.{{ totals }})</span>
+    </button>
 </div>
 
 {% endblock %}

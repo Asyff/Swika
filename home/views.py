@@ -22,6 +22,7 @@ from cart.models import PersistentCartItem# Active DB cart model tracking row
 from .forms import CategoryForm
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
+from django.db.models import Q
 # ==================== PUBLIC PAGE VIEW CONTROLLERS ====================
 
 def home(request):
@@ -205,7 +206,7 @@ def checkout(request):
     })
 
 # UNIFIED CHECKOUT ORDER WRITER CONSOLE ENGINE
-def create_database_orders(request, fallback_address_gateway, checkout_phone=None, checkout_address=None, receipt_file=None, initial_status='Paid'):
+def create_database_orders(request, fallback_address_gateway, checkout_phone=None, checkout_address=None, **kwargs):
     cart = Cart(request)
     quantities = cart.get_quants()
     profile = request.user.profile
@@ -213,76 +214,62 @@ def create_database_orders(request, fallback_address_gateway, checkout_phone=Non
     final_address = checkout_address if checkout_address else (profile.shipping_address if profile.shipping_address else fallback_address_gateway)
     final_phone = checkout_phone if checkout_phone else (profile.phone if profile.phone else "N/A")
 
+    # Dynamic status fallback logic: check if 'initial_status' was passed into kwargs, otherwise default to 'Paid'
+    order_status = kwargs.get('initial_status', 'Paid')
+
+    purchased_items_snapshot = []
+
     for product in cart.get_prods():
         product_id_str = str(product.id)
         if product_id_str in quantities:
             qty = quantities[product_id_str]
             purchase_price = product.sale_price if product.sale_price > 0 else product.price
+            line_cost = round(float(purchase_price) * qty, 2)
             
-            # 1. Create long-term order fulfillment row
+            # Save the new row transaction records into your Database model layout
             Order.objects.create(
                 user=request.user,
                 product=product,
                 quantity=qty,
                 address=final_address,
                 phone=final_phone,
-                price_at_purchase=purchase_price,
-                payment_receipt=receipt_file,
-                status=initial_status
+                status=order_status,  # Dynamic evaluation (eSewa/Khalti -> 'Paid', COD -> 'Pending')
+                price_at_purchase=purchase_price
             )
             
-            # 2. Deduct inventory stock numbers
+            purchased_items_snapshot.append({
+                'name': product.name,
+                'qty': qty,
+                'price': purchase_price,
+                'line_total': line_cost
+            })
+            
+            # Deduct inventory stock levels
             if hasattr(product, 'stock_quantity'):
                 product.stock_quantity = max(0, product.stock_quantity - qty)
                 product.save()
             
-    # 3. FIX: CLEAR PERMANENT DATABASE CART ITEMS FIRST
-    # This prevents the Cart.__init__ constructor from pulling old items back on page load
-    PersistentCartItem.objects.filter(user=request.user).delete()
+    # Trigger outbound notifications straight to swikahandmade@gmail.com
+    if purchased_items_snapshot:
+        send_admin_order_notification(
+            user=request.user,
+            checkout_phone=final_phone,
+            checkout_address=final_address,
+            order_items=purchased_items_snapshot
+        )
 
-    # 4. CLEAR ACTIVE SESSION CART
+    # Wipe user active session cart cookies parameters configurations
     request.session['session_key'] = {}
     request.session.modified = True
     
+    PersistentCartItem.objects.filter(user=request.user).delete()
     
 @login_required
 def payment_success(request):
     return render(request, "payment_success.html")
 
-def generate_esewa_signature(request):
-    if request.method == 'POST':
-        # Use the standard Sandbox Secret Key for EPAYTEST
-        secret_key = "8gBm/:&EnhH" 
-        
-        # Ensure values are read cleanly without removing valid float/decimal places
-        total_amount = request.POST.get('total_amount', '').strip()
-        transaction_uuid = request.POST.get('transaction_uuid', '').strip()
-        product_code = request.POST.get('product_code', '').strip()
 
-        # Build the exact message string string as mandated by eSewa v2 rules
-        data_to_sign = f"total_amount={total_amount},transaction_uuid={transaction_uuid},product_code={product_code}"
-        
-        # Hashing process
-        secret_bytes = bytes(secret_key, 'utf-8')
-        data_bytes = bytes(data_to_sign, 'utf-8')
-        
-        hmac_hash = hmac.new(secret_bytes, data_bytes, hashlib.sha256).digest()
-        encoded_signature = base64.b64encode(hmac_hash).decode('utf-8')
 
-        return JsonResponse({
-            'signature': encoded_signature,
-            'clean_amount': total_amount
-        })
-        
-@login_required
-def esewa_success(request):
-    create_database_orders(request, "Paid via eSewa Portal", initial_status='Paid')
-    return redirect('payment_success')
-
-@login_required
-def khalti_success(request):
-    create_database_orders(request, "Paid via Khalti Web Wallet", initial_status='Paid')
-    return redirect('payment_success')
 
 @csrf_exempt
 @login_required
@@ -290,18 +277,56 @@ def fonepay_success(request):
     if request.method == 'POST':
         typed_phone = request.POST.get('phone', '').strip()
         typed_address = request.POST.get('shipping_address', '').strip()
-        
-        # EXTRACT FILE: Pull the uploaded file from request.FILES dictionary safely
-        uploaded_receipt = request.FILES.get('payment_receipt')
+        method_used = request.POST.get('payment_method', 'fonepay').strip()
 
-        create_database_orders(
-            request, 
-            fallback_address_gateway="Paid via Fonepay Mobile QR Scan",
-            checkout_phone=typed_phone,
-            checkout_address=typed_address,
-            receipt_file=uploaded_receipt # Pass the image variable
-        )
-        return JsonResponse({'status': 'verified'})
+        cart = Cart(request)
+        quantities = cart.get_quants()
+        profile = request.user.profile
+
+        final_address = typed_address if typed_address else (profile.shipping_address if profile.shipping_address else "Provided on Checkout Summary")
+        final_phone = typed_phone if typed_phone else (profile.phone if profile.phone else "N/A")
+
+        # 1. PROCESS GATEWAY PARAMETERS CONDITIONALS
+        if method_used == 'cod':
+            txn_id = "CASH-ON-DELIVERY"
+            screenshot_file = None
+            fallback_label = "Cash on Delivery Route"
+        else:
+            txn_id = request.POST.get('fonepay_txn_id', '').strip()
+            screenshot_file = request.FILES.get('payment_screenshot')
+            fallback_label = "Paid via Fonepay Mobile QR Scan"
+
+        # 2. COMMIT TRANSACTION ROW ENTRIES ITEM-BY-ITEM
+        for product in cart.get_prods():
+            product_id_str = str(product.id)
+            if product_id_str in quantities:
+                qty = quantities[product_id_str]
+                purchase_price = product.sale_price if product.sale_price > 0 else product.price
+                
+                Order.objects.create(
+                    user=request.user,
+                    product=product,
+                    quantity=qty,
+                    address=final_address,
+                    phone=final_phone,
+                    status='Pending',  # Both methods stay Pending until admin clears fulfillment actions
+                    price_at_purchase=purchase_price,
+                    fonepay_txn_id=txn_id,
+                    payment_screenshot=screenshot_file
+                )
+                
+                # Automatic Inventory deduction block tracking sync links
+                if hasattr(product, 'stock_quantity') and product.stock_quantity is not None:
+                    product.stock_quantity = max(0, product.stock_quantity - qty)
+                    product.save()
+
+        # Clear session shopping baskets
+        request.session['session_key'] = {}
+        request.session.modified = True
+        
+        PersistentCartItem.objects.filter(user=request.user).delete()
+
+        return JsonResponse({'status': 'submitted'})
         
 @login_required
 def cod_success(request):
@@ -330,30 +355,31 @@ def is_admin_user(user):
 @user_passes_test(is_admin_user, login_url='login')
 def admin_order_dashboard(request):
     orders = Order.objects.all().order_by('-date')
-    search_query = request.GET.get('search', '').strip()
-    status_filter = request.GET.get('status_filter', '').strip()
     
+    # SEARCH FILTER ENGINE LINK
+    search_query = request.GET.get('search_query', '').strip()
     if search_query:
-        from django.db.models import Q
+        # Searches across user model fields, products names, phone inputs, or fonepay transaction tracking strings
         orders = orders.filter(
             Q(user__username__icontains=search_query) |
             Q(phone__icontains=search_query) |
-            Q(address__icontains=search_query) |
+            Q(fonepay_txn_id__icontains=search_query) |
             Q(product__name__icontains=search_query)
         )
-        
-    if status_filter:
-        orders = orders.filter(status=status_filter)
-        
-    all_orders = Order.objects.all()
+    
     metrics = {
-        'total': all_orders.count(),
-        'pending': all_orders.filter(status='Pending').count(),
-        'paid': all_orders.filter(status='Paid').count(),
-        'shipped': all_orders.filter(status='Shipped').count(),
-        'delivered': all_orders.filter(status='Delivered').count(),
+        'total': Order.objects.count(), # Baseline totals calculated from root table to preserve metrics accuracy
+        'pending': Order.objects.filter(status='Pending').count(),
+        'paid': Order.objects.filter(status='Paid').count(),
+        'shipped': Order.objects.filter(status='Shipped').count(),
+        'delivered': Order.objects.filter(status='Delivered').count(),
     }
-    return render(request, "admin_order_dashboard.html", {"orders": orders, "metrics": metrics})
+    
+    return render(request, "admin_order_dashboard.html", {
+        "orders": orders,
+        "metrics": metrics,
+        "search_query": search_query # Return query to keep text locked in input box layout during filtering
+    })
 
 
 @user_passes_test(is_admin_user, login_url='login')
@@ -411,3 +437,60 @@ def delete_category(request, category_id):
     category.delete()
     messages.success(request, f"Category '{category_name}' removed successfully.")
     return redirect('manage_categories')
+
+def send_admin_order_notification(user, checkout_phone, checkout_address, order_items):
+    """
+    Compiles a comprehensive summary of successful orders and fires 
+    a dispatch alert notification email straight to management fulfillment teams.
+    """
+    admin_recipient = "swikahandmade@gmail.com"
+    
+    subject = f"🚨 ALERT: New Order Received - Swika Estore"
+    
+    # Compile a scannable text breakdown ledger loop string for items
+    items_breakdown_text = ""
+    grand_total = 0
+    
+    for item in order_items:
+        items_breakdown_text += f"- {item['name']} (Quantity: x{item['qty']}) @ Rs.{item['price']} each\n"
+        grand_total += item['line_total']
+
+    email_body = f"""
+Hello Swika Handmade Team,
+
+A new successful payment checkout has been verified on your marketplace platform. Please find the customer fulfillment parameters below:
+
+========================================
+CUSTOMER & DELIVERY DETAILS
+========================================
+Customer Account: {user.username}
+Client Full Name: {user.first_name} {user.last_name}
+Email Address: {user.email}
+Contact Telephone: {checkout_phone}
+Shipping Destination: {checkout_address}
+
+========================================
+PURCHASED LINE ITEMS BREAKDOWN
+========================================
+{items_breakdown_text}
+----------------------------------------
+GRAND TOTAL REMITTED: Rs.{grand_total}
+========================================
+
+Fulfillment Next Steps:
+Log into your order management panel dashboard (http://localhost:8000/store-admin/orders/) to print out packing slips, generate PDF invoices, or advance the logistical status to 'Shipped'.
+
+Best regards,
+Swika Estore Automation Engine
+"""
+
+    try:
+        send_mail(
+            subject=subject,
+            message=email_body,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[admin_recipient],
+            fail_silently=False, # Set to False during staging development to catch configuration faults
+        )
+    except Exception as e:
+        print(f"Outbound dispatch automation email system logged an exception error fault: {e}")

@@ -53,19 +53,19 @@ class Order(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     price_at_purchase = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
-    # FIX 2: Added safety checks to prevent crashes if an order user is empty/null
-    def __str__(self):
-        username = self.user.username if self.user else "Anonymous/Guest"
-        return f"Order #{self.id} - {username} - {self.product.name} (x{self.quantity})"
+    fonepay_txn_id = models.CharField(max_length=50, default='', blank=True, null=True)
+    
+    # FIX 1: Changed 'upload_base' to 'upload_to'
+    payment_screenshot = models.ImageField(upload_to='payment_proofs/', blank=True, null=True)
 
     @property
     def total_cost(self):
         return round(float(self.price_at_purchase) * self.quantity, 2)
     
-    payment_receipt = models.ImageField(upload_to='receipts/', blank=True, null=True)
-
+    # FIX 2: Correctly scoped username checking to avoid internal string formatting crashes
     def __str__(self):
-        return f"Order #{self.id} - {self.user.username} - {self.product.name} (x{self.quantity})"
+        username = self.user.username if self.user else "Anonymous"
+        return f"Order #{self.id} - {username} - {self.product.name} (x{self.quantity})"
 
 
 # ==================== USER PROFILE EXTENSION LAYER ====================

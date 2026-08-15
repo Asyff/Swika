@@ -133,10 +133,15 @@ MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGIN_URL = 'login'
 
+# Email Server Routing Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = '://gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'your_store_email@gmail.com'  # Replace with your business email address
-EMAIL_HOST_PASSWORD = 'your_app_password_token'  # Replace with Google App Password token
-DEFAULT_FROM_EMAIL = f'Swika Estore <{EMAIL_HOST_USER}>'
+EMAIL_HOST_USER = 'your_store_email@gmail.com'      # Enter your store email address
+EMAIL_HOST_PASSWORD = 'abcd efgh ijkl mnop'        # Enter your 16-character Google App Password
+DEFAULT_FROM_EMAIL = f'Swika Estore <your_store_email@gmail.com>'
+
+# For immediate testing without a real email server, uncomment the line below 
+# to log the emails straight to your terminal console window instead:
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
