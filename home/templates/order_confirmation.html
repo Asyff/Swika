@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; line-height: 1.6; }
+        .wrapper { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px; }
+        .header { background-color: #088178; color: white; text-align: center; padding: 20px; border-radius: 6px 6px 0 0; }
+        .content { padding: 20px; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .table th, .table td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
+        .table th { background-color: #fafdff; font-weight: bold; }
+        .total-row { font-size: 18px; font-weight: bold; color: #088178; }
+        .footer { text-align: center; font-size: 12px; color: #777; margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="header">
+            <h2 style="margin:0;">Swika Estore</h2>
+            <p style="margin:5px 0 0 0; opacity:0.9;">Order Confirmation Receipt</p>
+        </div>
+        <div class="content">
+            <p>Dear <strong>{{ user.first_name|default:user.username }}</strong>,</p>
+            <p>Thank you for shopping with Swika Estore! Your order has been successfully placed and recorded under reference number <strong>#ORD-00{{ order_id }}</strong>.</p>
+            
+            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 6px; margin: 20px 0;">
+                <h4 style="margin-top:0; color:#088178;">Delivery Destination:</h4>
+                <p style="margin:0;"><strong>Address:</strong> {{ address }}<br>
+                <strong>Phone:</strong> {{ phone }}</p>
+                <p style="margin:10px 0 0 0; font-size:14px;"><strong>Payment Framework:</strong> {{ payment_route }}</p>
+            </div>
+
+            <h4 style="color:#088178; margin-bottom:5px;">Your Items:</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Product Description</th>
+                        <th style="text-align: center;">Qty</th>
+                        <th style="text-align: right;">Line Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order_items %}
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        <td style="text-align: center;">x{{ item.qty }}</td>
+                        <td style="text-align: right;">Rs.{{ item.line_total }}</td>
+                    </tr>
+                    {% endfor %}
+                    <tr class="total-row">
+                        <td colspan="2" style="text-align: right; border-bottom:none;">Grand Total:</td>
+                        <td style="text-align: right; border-bottom:none;">Rs.{{ grand_total }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p style="margin-top:30px;">You can track your fulfillment updates and download official PDF packing slips at any time by logging into your <a href="http://localhost:8000/orders/" style="color:#088178; text-decoration:none; font-weight:bold;">Order History Dashboard</a>.</p>
+        </div>
+        <div class="footer">
+            This is an automated operational system email notification. Please do not reply directly to this address.<br>
+            &copy; 2026 Swika Estore, Kathmandu, Nepal.
+        </div>
+    </div>
+</body>
+</html>
