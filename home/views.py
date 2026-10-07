@@ -232,16 +232,28 @@ def checkout(request):
 
 def create_database_orders(request, fallback_address_gateway, checkout_phone=None, checkout_address=None, **kwargs):
     cart = Cart(request)
-    quantities = cart.get_quants() 
+    quantities = cart.get_quants()
     profile = request.user.profile
 
     final_address = checkout_address if checkout_address else (profile.shipping_address if profile.shipping_address else fallback_address_gateway)
     final_phone = checkout_phone if checkout_phone else (profile.phone if profile.phone else "N/A")
     order_status = kwargs.get('initial_status', 'Paid')
     uploaded_receipt = kwargs.get('receipt_file', None)
+    trace_txn_id = kwargs.get('txn_id', '')
+
+    # --- BACKEND SHIPPING RE-CALCULATION ENGINE ---
+    # Extract the raw selected city value straight from your profile form model instance reference
+    selected_city = request.POST.get('shipping_address', '') # Grabs 'address, city' string from JS append
     
-    # 1. EXTRACT THE TRANSACTION ID FROM KWARGS
-    trace_txn_id = kwargs.get('txn_id', '') 
+    shipping_fee = 0
+    if "inside kathmandu valley" in selected_city.lower():
+        shipping_fee = 50
+    elif "outside kathmandu valley" in selected_city.lower():
+        shipping_fee = 150
+    # -----------------------------------------------
+
+    if len(cart.cart.keys()) == 0:
+        return 
 
     purchased_items_snapshot = []
     last_saved_order_id = 1 
@@ -253,7 +265,6 @@ def create_database_orders(request, fallback_address_gateway, checkout_phone=Non
             purchase_price = product.sale_price if product.sale_price > 0 else product.price
             line_cost = round(float(purchase_price) * qty, 2)
             
-            # Save the new row record to your Database model layout
             new_order = Order.objects.create(
                 user=request.user,
                 product=product,
@@ -263,9 +274,7 @@ def create_database_orders(request, fallback_address_gateway, checkout_phone=Non
                 status=order_status,  
                 price_at_purchase=purchase_price,
                 payment_screenshot=uploaded_receipt,
-                
-                # 2. SAVE TRACE ID DIRECTLY INTO THE DATABASE ROW
-                fonepay_txn_id=trace_txn_id  
+                fonepay_txn_id=trace_txn_id
             )
             
             last_saved_order_id = new_order.id 
@@ -277,15 +286,14 @@ def create_database_orders(request, fallback_address_gateway, checkout_phone=Non
                 product.stock_quantity = max(0, product.stock_quantity - qty)
                 product.save()
             
-            
     if purchased_items_snapshot:
-        print("--- [TRACE] Snapshot verified! Triggering email dispatches... ---")
+        # Append the calculated shipping fee to your automated transactional receipts
+        # You can add a dict item like 'shipping': shipping_fee into your snapshots
         send_admin_order_notification(request.user, final_phone, final_address, purchased_items_snapshot)
         
         payment_route_label = "Fonepay Screenshot Uploaded (Awaiting Verification)" if uploaded_receipt else "Cash on Delivery (COD)"
         send_customer_order_confirmation(request.user, final_phone, final_address, purchased_items_snapshot, payment_route_label, last_saved_order_id)
 
-    # Wipe transaction cache ONLY after everything builds successfully
     request.session['session_key'] = {}
     request.session.modified = True
     PersistentCartItem.objects.filter(user=request.user).delete()
@@ -356,36 +364,44 @@ def cod_success(request):
 def is_admin_user(user):
     return user.is_authenticated and (user.is_staff or user.is_superuser)
 
-
 @user_passes_test(is_admin_user, login_url='login')
 def admin_order_dashboard(request):
+    # 1. Base Queryset
     orders = Order.objects.all().order_by('-date')
     
-    # SEARCH FILTER ENGINE LINK
-    search_query = request.GET.get('search_query', '').strip()
-    if search_query:
-        # Searches across user model fields, products names, phone inputs, or fonepay transaction tracking strings
-        orders = orders.filter(
-            Q(user__username__icontains=search_query) |
-            Q(phone__icontains=search_query) |
-            Q(fonepay_txn_id__icontains=search_query) |
-            Q(product__name__icontains=search_query)
-        )
+    search_query = request.GET.get('search', '').strip()
+    status_filter = request.GET.get('status_filter', '').strip()
     
+    # 2. Handle Text Search Matrix Inputs
+    if search_query:
+        if search_query.isdigit():
+            orders = orders.filter(Q(id=int(search_query)) | Q(phone__contains=search_query))
+        else:
+            orders = orders.filter(
+                Q(user__username__icontains=search_query) | 
+                Q(product__name__icontains=search_query) |
+                Q(address__icontains=search_query) |
+                Q(fonepay_txn_id__icontains=search_query)
+            )
+            
+    # 3. Handle Logistical Dropdown Filters
+    if status_filter:
+        orders = orders.filter(status=status_filter)
+        
+    # FIX: Compute metric counters directly off the current search result query state 
+    # so cards stay accurately synchronized with your text values
     metrics = {
-        'total': Order.objects.count(), # Baseline totals calculated from root table to preserve metrics accuracy
-        'pending': Order.objects.filter(status='Pending').count(),
-        'paid': Order.objects.filter(status='Paid').count(),
-        'shipped': Order.objects.filter(status='Shipped').count(),
-        'delivered': Order.objects.filter(status='Delivered').count(),
+        'total': orders.count(),
+        'pending': orders.filter(status='Pending').count(),
+        'paid': orders.filter(status='Paid').count(),
+        'shipped': orders.filter(status='Shipped').count(),
+        'delivered': orders.filter(status='Delivered').count(),
     }
     
     return render(request, "admin_order_dashboard.html", {
         "orders": orders,
-        "metrics": metrics,
-        "search_query": search_query # Return query to keep text locked in input box layout during filtering
+        "metrics": metrics
     })
-
 
 @user_passes_test(is_admin_user, login_url='login')
 def update_order_status(request, order_id):

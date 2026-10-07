@@ -94,27 +94,32 @@
             </div>
         </div>
 
-        <!-- Right Side Column: Order Summary Recap Modules -->
-        <div class="col-md-5">
-            <div class="card shadow-sm p-4" style="border-radius: 8px;">
-                <h4 class="mb-3" style="color: #088178; font-weight: 700;">Order Summary</h4>
-                <ul class="list-group mb-3 list-group-flush">
-                    {% for product in cart_products %}
-                    <li class="list-group-item d-flex justify-content-between align-items-start px-0 bg-transparent">
-                        <div class="me-auto">
-                            <h6 class="my-0" style="font-weight: 600; color: #333;">{{ product.name }}</h6>
-                            <small class="text-muted">Quantity Selected: {{ product.qty }}</small>
-                        </div>
-                        <span class="text-muted" style="font-weight: 500;">Rs.{{ product.total_price }}</span>
-                    </li>
-                    {% endfor %}
-                    <li class="list-group-item d-flex justify-content-between px-0 pt-3 bg-transparent" style="border-top: 2px dashed #ddd;">
-                        <span style="font-size: 18px;"><strong>Total Cost:</strong></span>
-                        <strong style="font-size: 18px; color: #088178;">Rs.<span>{{ totals }}</span></strong>
-                    </li>
-                </ul>
-            </div>
-        </div>
+       <div class="col-md-5">
+    <div class="card shadow-sm p-4" style="border-radius: 8px;">
+        <h4 class="mb-3" style="color: #088178; font-weight: 700;">Order Summary</h4>
+        <ul class="list-group mb-3 list-group-flush">
+            {% for product in cart_products %}
+            <li class="list-group-item d-flex justify-content-between align-items-start px-0 bg-transparent">
+                <div class="me-auto">
+                    <h6 class="my-0" style="font-weight: 600; color: #333;">{{ product.name }}</h6>
+                    <small class="text-muted">Quantity Selected: {{ product.qty }}</small>
+                </div>
+                <span class="text-muted" style="font-weight: 500;">Rs.{{ product.total_price }}</span>
+            </li>
+            {% endfor %}
+            
+            <!-- NEW: Dynamic Shipping Fee Line Item Display Row -->
+            <li class="list-group-item d-flex justify-content-between px-0 bg-transparent">
+                <span>Shipping Fee:</span>
+                <span class="text-muted" id="shipping-fee-display">Rs.0</span>
+            </li>
+
+            <li class="list-group-item d-flex justify-content-between px-0 pt-3 bg-transparent" style="border-top: 2px dashed #ddd;">
+                <span style="font-size: 18px;"><strong>Total Cost:</strong></span>
+                <!-- FIX: Added dynamic id 'grand-total-display' for instant JS recalculation updates -->
+                <strong style="font-size: 18px; color: #088178;">Rs.<span id="grand-total-display">{{ totals }}</span></strong>
+            </li>
+        </ul>
     </div>
 </div>
 

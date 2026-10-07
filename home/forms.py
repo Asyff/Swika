@@ -15,14 +15,23 @@ class UserUpdateForm(forms.ModelForm):
 
 # Updated form for custom profile metadata
 class ProfileForm(forms.ModelForm):
+    # Define location options specific to your store delivery zones
+    CITY_CHOICES = [
+        ('', '-- Select Your Location / Region --'),
+        ('Inside Kathmandu Valley', 'Inside Kathmandu Valley (Kathmandu, Lalitpur, Bhaktapur)'),
+        ('Outside Kathmandu Valley', 'Outside Kathmandu Valley'),
+    ]
+    
+    # Overwrite the city property layout to render a choice selection dropdown field
+    city = forms.ChoiceField(choices=CITY_CHOICES, widget=forms.Select(attrs={'class': 'form-select'}))
+
     class Meta:
         model = Profile
         fields = ['phone', 'shipping_address', 'city', 'postal_code']
         widgets = {
-            'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Phone Number'}),
-            'shipping_address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Itapukhu'}),
-            'city': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Kathmandu'}),
-            'postal_code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Postal Code'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '98XXXXXXXX'}),
+            'shipping_address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. New Baneshwor, Ward No. 10'}),
+            'postal_code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. 44600'}),
         }
 
 class CategoryForm(forms.ModelForm):

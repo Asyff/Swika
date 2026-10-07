@@ -2,7 +2,7 @@
 {% block content %}
 <div class="container my-5">
     
-    <!-- Dashboard Header Header -->
+    <!-- Dashboard Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 style="font-weight: 700; color: #222;">Admin Order Fulfillment Dashboard</h2>
         <span class="badge bg-dark px-3 py-2" style="font-size: 14px;">Store Management Console</span>
@@ -51,7 +51,7 @@
         </div>
     </div>
 
-    <!-- FIX 1: Unified Consolidated Search & Filter Card Module Control -->
+    <!-- Search & Filter Card Module Control -->
     <div class="card shadow-sm border-0 mb-4 bg-light">
         <div class="card-body p-4">
             <h5 class="mb-3" style="font-weight: 700; color: #444;">Search & Filter Real-Time Transactions</h5>
@@ -104,74 +104,88 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% if orders %}
-                            {% for order in orders %}
-                            <tr>
-                                <td class="ps-3 fw-bold">#{{ order.id }}</td>
-                                <td class="text-muted small">{{ order.date|date:"Y-m-d H:i" }}</td>
-                                <td>
-                                    <div><strong>{{ order.user.username }}</strong></div>
-                                    <div class="text-muted small">Phone: {{ order.phone }}</div>
-                                </td>
-                                <td>
-                                    <div class="fw-semibold">{{ order.product.name }}</div>
-                                    <div class="text-muted small">Units: x{{ order.quantity }}</div>
-                                    
-                                    {% if order.product.stock_quantity != None %}
-                                        {% if order.product.stock_quantity <= 5 %}
-                                            <div class="mt-1">
-                                                <span class="badge bg-danger text-white" style="font-size: 11px; padding: 4px 8px;">
-                                                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Low Stock: {{ order.product.stock_quantity }} Left
-                                                </span>
-                                            </div>
-                                        {% endif %}
-                                    {% endif %}
-                                </td>
-                                <td class="fw-bold" style="color: #088178;">Rs.{{ order.total_cost }}</td>
-                                <td><small class="text-muted d-inline-block text-truncate" style="max-width: 180px;" title="{{ order.address }}">{{ order.address }}</small></td>
-                                
-                                <!-- FIX 2 & 3: Cleaned up unclosed tags and added direct screenshot receipt verification checking properties strings -->
-                                <td>
-                                    {% if order.payment_screenshot or order.fonepay_txn_id %}
-                                        <span class="badge text-white bg-danger" style="font-size: 11px; background-color: #dc3545 !important;">Fonepay QR</span>
-                                        {% if order.fonepay_txn_id %}
-                                            <div class="small text-dark mt-1" style="font-size: 11px; font-weight: 600;">
-                                                Trace: <span class="text-muted font-monospace">{{ order.fonepay_txn_id }}</span>
-                                            </div>
-                                        {% endif %}
-                                        {% if order.payment_screenshot %}
-                                            <div class="mt-1">
-                                                <a href="{{ order.payment_screenshot.url }}" target="_blank" class="text-decoration-none small fw-bold" style="color: #dc3545; font-size: 11px;">
-                                                    <i class="fa fa-image" aria-hidden="true"></i> View Screenshot &rarr;
-                                                </a>
-                                            </div>
-                                        {% endif %}
-                                    {% else %}
-                                        <span class="badge text-white bg-success" style="font-size: 11px; background-color: #198754 !important;">COD (Cash)</span>
-                                    {% endif %}
-                                </td>
+    {% if orders %}
+        {% for order in orders %}
+        <tr>
+            <td class="ps-3 fw-bold">#{{ order.id }}</td>
+            <td class="text-muted small">{{ order.date|date:"Y-m-d H:i" }}</td>
+            <td>
+                <div><strong>{{ order.user.username }}</strong></div>
+                <div class="text-muted small">Phone: {{ order.phone }}</div>
+            </td>
+            <td>
+                <div class="fw-semibold">{{ order.product.name }}</div>
+                <div class="text-muted small">Units: x{{ order.quantity }}</div>
+                
+                {% if order.product.stock_quantity != None %}
+                    {% if order.product.stock_quantity <= 5 %}
+                        <div class="mt-1">
+                            <span class="badge bg-danger text-white" style="font-size: 11px; padding: 4px 8px;">
+                                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Low Stock: {{ order.product.stock_quantity }} Left
+                            </span>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            </td>
+            <td class="fw-bold" style="color: #088178;">Rs.{{ order.total_cost }}</td>
+            <td><small class="text-muted d-inline-block text-truncate" style="max-width: 180px;" title="{{ order.address }}">{{ order.address }}</small></td>
+            
+            <!-- FIX: Completely rebuilt, closed, and formatted Payment Method Column -->
+            <td>
+                {% if order.payment_screenshot or order.fonepay_txn_id %}
+                    <span class="badge text-white bg-danger" style="font-size: 11px; background-color: #dc3545 !important;">Fonepay QR</span>
+                    {% if order.fonepay_txn_id %}
+                        <div class="small text-dark mt-1" style="font-size: 11px; font-weight: 600;">
+                            Trace: <span class="text-muted font-monospace">{{ order.fonepay_txn_id }}</span>
+                        </div>
+                    {% endif %}
+                    {% if order.payment_screenshot %}
+                        <div class="mt-1">
+                            <a href="{{ order.payment_screenshot.url }}" target="_blank" class="text-decoration-none small fw-bold" style="color: #dc3545; font-size: 11px;">
+                                <i class="fa fa-image" aria-hidden="true"></i> View Screenshot &rarr;
+                            </a>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <!-- Restored the complete missing COD template fallback branch -->
+                    <span class="badge text-white bg-success" style="font-size: 11px; background-color: #198754 !important;">COD (Cash)</span>
+                {% endif %}
+            </td>
 
-                                <td>
-                                    <span class="badge {% if order.status == 'Paid' %}bg-success{% elif order.status == 'Shipped' %}bg-primary{% elif order.status == 'Delivered' %}bg-secondary{% else %}bg-warning text-dark{% endif %}">
-                              
-                                {{ order.status }}{% csrf_token %}<option value="Pending" {% if order.status == 'Pending' %}selected
-
-                                {% endif %}
-                                
-                                >Pending<option value="Paid" {% if order.status == 'Paid' %}selected
-
-                                {% endif %}
-                                >Paid<option value="Shipped" {% if order.status == 'Shipped' %}selected
-
-                                {% endif %}
-                                >Shipped<option value="Delivered" {% if order.status == 'Delivered' %}selected
-
-                                {% endif %}
-                                
-                                >DeliveredUpdate
-                                {% endfor %}
-
-                                {% else %}No orders found matching your search parameter metrics values.
-                                {% endif %}
-
-                                    {% endblock %}
+            <!-- Logistical Status Badge Column -->
+            <td>
+                <span class="badge {% if order.status == 'Paid' %}bg-success{% elif order.status == 'Shipped' %}bg-primary{% elif order.status == 'Delivered' %}bg-secondary{% else %}bg-warning text-dark{% endif %}">
+                    {{ order.status }}
+                </span>
+            </td>
+            
+            <!-- Status Action Dropdown Updates Form Column -->
+            <td class="pe-3 text-center">
+                <form action="{% url 'update_order_status' order.id %}" method="POST" class="d-flex align-items-center justify-content-center gap-1">
+                    {% csrf_token %}
+                    <select name="status" class="form-select form-select-sm" style="max-width: 110px;">
+                        <option value="Pending" {% if order.status == 'Pending' %}selected{% endif %}>Pending</option>
+                        <option value="Paid" {% if order.status == 'Paid' %}selected{% endif %}>Paid</option>
+                        <option value="Shipped" {% if order.status == 'Shipped' %}selected{% endif %}>Shipped</option>
+                        <option value="Delivered" {% if order.status == 'Delivered' %}selected{% endif %}>Delivered</option>
+                    </select>
+                    <button type="submit" class="btn btn-dark btn-sm fw-semibold">Update</button>
+                    <a href="{% url 'print_invoice' order.id %}" target="_blank" class="btn btn-outline-secondary btn-sm" title="Print Bill Receipt">
+                        <i class="fa fa-print" aria-hidden="true"></i>
+                    </a>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    {% else %}
+        <tr>
+            <td colspan="9" class="text-center py-5 text-muted">No orders found matching your search parameter metrics values.</td>
+        </tr>
+    {% endif %}
+</tbody>
+</table>
+</div>
+</div>
+</div>
+                                                    
+                                                    {% endblock %}

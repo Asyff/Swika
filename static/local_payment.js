@@ -1,6 +1,37 @@
 let activePaymentMethod = 'fonepay';
 
 // 1. Manages form display switching smoothly without page reloads
+$(document).on('change', '#id_city', function() {
+    recalculateCheckoutTotals();
+});
+
+function recalculateCheckoutTotals() {
+    let selectedLocation = $('#id_city').val();
+    let baseItemsTotal = parseFloat(orderTotalAmount) || 0;
+    let shippingCost = 0;
+
+    // Evaluate dynamic delivery bounds criteria
+    if (selectedLocation === 'Inside Kathmandu Valley') {
+        shippingCost = 50;
+    } else if (selectedLocation === 'Outside Kathmandu Valley') {
+        shippingCost = 150;
+    }
+
+    let finalGrandTotal = baseItemsTotal + shippingCost;
+
+    // 1. Update the visual text nodes inside your Order Summary Card
+    $('#shipping-fee-display').text("Rs." + shippingCost);
+    $('#grand-total-display').text(finalGrandTotal.toFixed(2));
+
+    // 2. Sync the text labels directly inside your submission action buttons
+    if (activePaymentMethod === 'fonepay') {
+        $('#submit-order-btn').find('#checkout-btn-text').text("Submit Order (Rs." + finalGrandTotal.toFixed(2) + ")");
+    } else if (activePaymentMethod === 'cod') {
+        $('#submit-order-btn').find('#checkout-btn-text').text("Confirm Cash Order (Rs." + finalGrandTotal.toFixed(2) + ")");
+    }
+}
+
+// Update your existing switchLocalGateway function to preserve shipping logic on method toggles
 function switchLocalGateway(gateway) {
     activePaymentMethod = gateway;
     
@@ -8,13 +39,14 @@ function switchLocalGateway(gateway) {
         $('#fonepay-fields-block').show();
         $('#cod-fields-block').hide();
         $('#submit-order-btn').css('background-color', '#dc3545').removeClass('btn-success').addClass('btn-danger');
-        $('#submit-order-btn').html(`<span class="spinner-border spinner-border-sm d-none" id="checkout-spinner" role="status"></span><span id="checkout-btn-text">Submit Order (Rs.${orderTotalAmount})</span>`);
     } else if (gateway === 'cod') {
         $('#fonepay-fields-block').hide();
         $('#cod-fields-block').show();
         $('#submit-order-btn').css('background-color', '#198754').removeClass('btn-danger').addClass('btn-success');
-        $('#submit-order-btn').html(`<span class="spinner-border spinner-border-sm d-none" id="checkout-spinner" role="status"></span><span id="checkout-btn-text">Confirm Cash Order (Rs.${orderTotalAmount})</span>`);
     }
+    
+    // Trigger total refresh to make sure button labels inherit any applied shipping balances
+    recalculateCheckoutTotals();
 }
 
 // 2. Compiles user input details and handles transaction submission requests
