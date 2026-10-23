@@ -66,7 +66,7 @@ body{
     align-items: center;
     justify-content: space-between;
     padding: 20px 80px;
-    background-color: #ffdbdc;
+    background-color: #c07d3f;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.09);
     z-index: 999;
     position: sticky;
@@ -110,7 +110,7 @@ body{
     font-size: 20px;
     border: none;
     outline: none;
-    color: #20C9DF;
+    color: #4075bf;
     padding: 10px 12px;
     transition: 0.3s;
     cursor: pointer;
@@ -118,13 +118,13 @@ body{
 }
 
 #navbar .dropydown button:hover{
-    background-color: #eaa0a2;
+    background-color: #c07d3f;
 }
 
 #navbar .dropydown .dropdown-menu{
     display: none;
     position: absolute;
-    background-color: #20C9DF;
+    background-color: #4075bf;
     min-width: 80px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1;
@@ -140,7 +140,7 @@ body{
 }
 
 #navbar .dropydown .dropdown-items:hover{
-    background-color: #eaa0a2;
+    background-color: #c07d3f;
 }
 
 #navbar .dropydown:hover .dropdown-menu{
@@ -149,7 +149,7 @@ body{
 
 #navbar li button span.quantity{
      font-size: 10px;
-     background-color: #20C9DF;
+     background-color: #4075bf;
      padding: 5px 10px; /* Add padding so the shape is visible */
      border-radius: 10px; /* Rounds the corners */
      border: 2px solid #83000010;
@@ -163,7 +163,7 @@ body{
 
 #mobile  button span.quantity{
     font-size: 15px;
-     background-color: #20C9DF;
+     background-color: #4075bf;
      padding: 5px 10px; /* Add padding so the shape is visible */
      border-radius: 10px; /* Rounds the corners */
      border: 2px solid #83000010;
@@ -183,14 +183,14 @@ body{
 
 
 #navbar li span.quantity:hover{
-    background-color: #eaa0a2;
+    background-color: #c07d3f;
    
 }
 
 
 
 #navbar #lg-bag a .shop-bag:hover{
-   color: #20C9DF;
+   color: #4075bf;
    
    
 }
@@ -213,7 +213,7 @@ body{
 #find{
     border: none;
     font-size: 20px;
-    background-color: #20C9DF;
+    background-color: #4075bf;
     padding: 6px;
     width: 70px;
     height: 35px;
@@ -224,7 +224,7 @@ body{
 
 #find:hover{
     transform: scale(1.05);
-    background-color: #eaa0a2;
+    background-color: #c07d3f;
 }
 
 #find:active{
@@ -235,7 +235,7 @@ body{
 
 #navbar li a:hover, 
 #navbar li a.active {
-color: #20C9DF;
+color: #4075bf;
 }
 
 #navbar li a:hover .active::after,
@@ -243,7 +243,7 @@ color: #20C9DF;
     content: "";
     width: 30%;
     height: 2px;
-    background: #20C9DF;
+    background: #4075bf;
     position: absolute;
     bottom: -4px;
     left: 25px;
@@ -277,25 +277,25 @@ color: #20C9DF;
 }
 
 #Sale h1{
-    color: #eaa0a2;
+    color: #c07d3f;
 }
 
 #Sale h4{
-    color: #eaa0a2;
+    color: #c07d3f;
 }
 
 #Sale h2{
-    color: #eaa0a2;
+    color: #c07d3f;
 }
 
 #Sale p{
-    color: #eaa0a2;
+    color: #c07d3f;
 }
 
 #Sale button{
     background-image: url(img/button.png);
     background-color: transparent;
-    color: #eaa0a2;
+    color: #c07d3f;
     border: 0;
     padding: 14px 80px 14px 65px;
     background-repeat: no-repeat;
@@ -414,7 +414,7 @@ box-shadow: 10px 10px 54px rgba(70, 62, 221, 0.1);
 }
 
 #product1 .product .description span{
-    color: #eaa0a2;
+    color: #c07d3f;
     font-size: 12px;
 }
 
@@ -434,7 +434,7 @@ box-shadow: 10px 10px 54px rgba(70, 62, 221, 0.1);
     padding-top: 7px;
     font-size: 15px;
     font-weight: 700;
-    color:#eaa0a2 ;
+    color:#c07d3f ;
 }
 
 #product1 .product .carts{
@@ -443,7 +443,7 @@ box-shadow: 10px 10px 54px rgba(70, 62, 221, 0.1);
     line-height: 40px;
     border-radius: 50px;
     background-color: #e8f6ea;
-    color: #eaa0a2;
+    color: #c07d3f;
     border: 1px solid #cce7d0;
     position: absolute;
     bottom:20px;
@@ -528,13 +528,13 @@ box-shadow: 10px 10px 54px rgba(70, 62, 221, 0.1);
 }
 
 #banner3 h2{
-    color: #eaa0a2;
+    color: #c07d3f;
     font-weight: 800;
     font-size: 15px;
 }
 
 #banner3 h3{
-    color: #eaa0a2;
+    color: #c07d3f;
     font-weight: 900;
     font-size: 30px;
     background-color: rgba(32, 201, 223, 0.3) ;
@@ -547,7 +547,7 @@ box-shadow: 10px 10px 54px rgba(70, 62, 221, 0.1);
     justify-content: space-between;
     flex-wrap: wrap;
     align-items: center;
-    background-color: #eaa0a2;
+    background-color: #c07d3f;
     
 }
 
@@ -565,7 +565,7 @@ box-shadow: 10px 10px 54px rgba(70, 62, 221, 0.1);
 }
 
 #newsletter p span{
-   color: #20C9DF;
+   color: #4075bf;
 }
 
 #newsletter input{
@@ -584,7 +584,7 @@ box-shadow: 10px 10px 54px rgba(70, 62, 221, 0.1);
 }
 
 #newsletter button{
-    background-color: #20C9DF;
+    background-color: #4075bf;
     color: #fff;
     white-space: nowrap;
     box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.5);
@@ -595,7 +595,7 @@ box-shadow: 10px 10px 54px rgba(70, 62, 221, 0.1);
 }
 
 #newsletter button:hover{
-    background-color: #eaa0a2;
+    background-color: #c07d3f;
     cursor: pointer;
     transform: scale(1.05);
 
@@ -654,14 +654,14 @@ footer .follow{
 }
 
 footer .follow i{
-    color: #20C9DF;
+    color: #4075bf;
     padding-right: 4px;
     cursor: pointer;
 }
 
 footer .follow i:hover,
 footer a:hover {
-    color: #eaa0a2;
+    color: #c07d3f;
 }
 
 footer .copyright{
@@ -1037,7 +1037,7 @@ footer .copyright{
 
 #pagination a{
     text-decoration: none;
-    background-color: #20C9DF;
+    background-color: #4075bf;
     padding: 15px 20px;
     border-radius: 4px;
     color: #fff;
@@ -1101,7 +1101,7 @@ footer .copyright{
 
 
 #productdetails .single-pro-details button:hover{
-    background-color: #eaa0a2;
+    background-color: #c07d3f;
     cursor: pointer;
     transform: scale(1.05);
 }
@@ -1112,7 +1112,7 @@ footer .copyright{
 }
 
 #productdetails .single-pro-details button{
-    background-color: #20C9DF;
+    background-color: #4075bf;
     color: #fff;
     width: 100px;
     height: 50px;
@@ -1192,11 +1192,11 @@ footer .copyright{
 }
 
 #blog .blog-details a:hover{
-    color: #20C9DF;
+    color: #4075bf;
 }
 
 #blog .blog-details a:hover::after{
-    background-color: #20C9DF;
+    background-color: #4075bf;
 }
 
 #blog .blog-box h1{
@@ -1343,7 +1343,7 @@ footer .copyright{
 }
 
 #form-details form button{
-    background-color: #20C9DF;
+    background-color: #4075bf;
     color: #fff;
     width: 100px;
     height: 50px;
@@ -1354,7 +1354,7 @@ footer .copyright{
 }
 
 #form-details form button:hover{
-    background-color: #eaa0a2;
+    background-color: #c07d3f;
     cursor: pointer;
     transform: scale(1.05);
 }
@@ -1425,7 +1425,7 @@ footer .copyright{
 }
 
 #coupon button{
-    background-color: #20C9DF;
+    background-color: #4075bf;
     color: #fff;
     width: 100px;
     height: 50px;
@@ -1436,7 +1436,7 @@ footer .copyright{
 }
 
 #coupon button:hover{
-    background-color: #eaa0a2;
+    background-color: #c07d3f;
     cursor: pointer;
     transform: scale(1.05);
 }
@@ -1489,14 +1489,14 @@ footer .copyright{
  }
 
  #subtotal a{
-    background-color: #20C9DF;
+    background-color: #4075bf;
     color: #fff;
     transition: 0.3s;
     border: none;
  }
 
  #subtotal a:hover{
-    background-color: #eaa0a2;
+    background-color: #c07d3f;
     cursor: pointer;
     transform: scale(1.05);
  }
@@ -1516,7 +1516,7 @@ footer .copyright{
  }
 
  .signup-section .signup-container h1,h4{
-    color: #eaa0a2;
+    color: #c07d3f;
     text-align: center;
     padding: 5px;
  }
@@ -1561,7 +1561,7 @@ footer .copyright{
     height: 35px;
     margin-top: 20px;
     border: none;
-    background-color: #20C9DF;
+    background-color: #4075bf;
     color: white;
     cursor: pointer;
     transition: 0.3s;
@@ -1569,7 +1569,7 @@ footer .copyright{
 }
 
 .signup-section .signup-container .signup .silobtn:hover{
-    background-color: #eaa0a2;
+    background-color: #c07d3f;
     transform: scale(1.05);
 }
 
@@ -1580,5 +1580,5 @@ footer .copyright{
 }
 
 .signup-section .signup-container p a{
-    color: #eaa0a2;
+    color: #c07d3f;
 }
