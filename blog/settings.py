@@ -23,7 +23,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-@$rn9^b)j108wc-c9a0p4zonh%v52cm@ch*5jqh!muf!5z79d5') 
+if os.environ.get('DEBUG', 'False').lower() in ['true', '1']:
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-@$rn9^b)j108wc-c9a0p4zonh%v52cm@ch*5jqh!muf!5z79d5')
+else:
+    SECRET_KEY = os.environ['SECRET_KEY']  # Will throw a KeyError if missing in production
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
@@ -137,14 +141,18 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGIN_URL = 'login'
 
 # Email Server Routing Configuration
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'your_store_email@gmail.com'      
-EMAIL_HOST_PASSWORD = 'abcd efgh ijkl mnop'        
-DEFAULT_FROM_EMAIL = 'Swika Estore <your_store_email@gmail.com>'
 
+# 2. FIX: Read credentials securely from the server environment instead of hardcoding them
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+
+# 3. Dynamic layout display matching your host mail
+DEFAULT_FROM_EMAIL = f'Swika Estore <{os.environ.get("EMAIL_HOST_USER")}>'
 # For immediate testing without a real email server, uncomment the line below 
 # to log the emails straight to your terminal console window instead:
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
