@@ -32,7 +32,7 @@ else:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.appliku.app', 'swika.appliku.app']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.appliku.app', 'swika.appliku.app',  'swika.applikuapp.com']
 
 
 # Application definition
