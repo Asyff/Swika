@@ -23,14 +23,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-if os.environ.get('DEBUG', 'False').lower() in ['true', '1']:
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-@$rn9^b)j108wc-c9a0p4zonh%v52cm@ch*5jqh!muf!5z79d5')
-else:
-    SECRET_KEY = os.environ['SECRET_KEY']  # Will throw a KeyError if missing in production
+#if os.environ.get('DEBUG', 'False').lower() in ['true', '1']:
+    #SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-@$rn9^b)j108wc-c9a0p4zonh%v52cm@ch*5jqh!muf!5z79d5')
+#else:
+    #SECRET_KEY = os.environ['SECRET_KEY']  # Will throw a KeyError if missing in production
+    
+SECRET_KEY =  'django-insecure-@$rn9^b)j108wc-c9a0p4zonh%v52cm@ch*5jqh!muf!5z79d5'
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+#DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+DEBUG = 'True'
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.appliku.app', 'swika.appliku.app',  'swika.applikuapp.com']
 
@@ -137,7 +140,14 @@ STATICFILES_DIRS = [
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+if not DEBUG:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+else:
+    # Safe fallback default storage engine for local runserver loops
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+    
+#STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
