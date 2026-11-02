@@ -35,7 +35,13 @@ SECRET_KEY =  'django-insecure-@$rn9^b)j108wc-c9a0p4zonh%v52cm@ch*5jqh!muf!5z79d
 #DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 DEBUG = 'True'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.appliku.app', 'swika.appliku.app',  'swika.applikuapp.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.appliku.app', 'swika.appliku.app',  'swika.applikuapp.com', '.swika.com.np', 'swika.com.np', '://swika.com.np',]
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://://applikuapp.com',
+    'https://swika.com.np',
+    'https://://swika.com.np',
+]
 
 
 # Application definition
