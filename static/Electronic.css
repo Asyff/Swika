@@ -254,133 +254,73 @@ color: #9affff;
     display: none;
 }
 
-/* Main Container Frame */
-.carousel-container {
-    position: relative;
-    width: 90%;
-    max-width: 1000px;
-    height: 500px;
-    overflow: hidden;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-}
-
-/* Slide Window Track */
-.carousel-track {
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
-/* Individual Slide Layout */
-.slide {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+.carousel-bg-img {
+    height: 420px;
     background-size: cover;
-    background-position: center;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.8s ease-in-out, visibility 0.8s ease-in-out;
+    background-position: center center;
+    background-repeat: no-repeat;
     display: flex;
-    align-items: flex-end; /* Places text content at the bottom */
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.5s ease-in-out;
 }
 
-/* Trigger slide visible via JavaScript */
-.slide.active {
-    opacity: 1;
-    visibility: visible;
+.carousel-caption-custom {
+    color: #000000;
+    z-index: 10;
+    padding: 20px;
 }
 
-/* Text & Button Overlay Container */
-.slide-content {
-    background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
-    width: 100%;
-    padding: 40px;
-    color: #ffffff;
-}
-
-.slide-content h2 {
-    font-size: 2.2rem;
-    margin-bottom: 10px;
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-}
-
-.slide-content p {
-    font-size: 1.1rem;
-    margin-bottom: 20px;
-    max-width: 600px;
-    opacity: 0.9;
-}
-
-/* Interactive CTA Link Button */
-.cta-button {
-    display: inline-block;
-    padding: 12px 28px;
-    background-color: #0076ff;
-    color: #ffffff;
+/* Custom Interactive Theme Accent Call Button */
+.btn-category-slider {
+    background-color: #9affff !important;
+    color: #000000 !important;
+    border: none !important;
+    font-weight: 700;
+    font-size: 15px;
+    text-transform: uppercase;
+    border-radius: 4px;
+    box-shadow: 0 4px 15px rgba(8, 129, 120, 0.3);
+    transition: all 0.3s ease;
     text-decoration: none;
-    font-weight: 600;
-    border-radius: 30px;
-    transition: background-color 0.2s ease, transform 0.2s ease;
-    box-shadow: 0 4px 12px rgba(0, 118, 255, 0.3);
+    display: inline-block;
 }
 
-.cta-button:hover {
-    background-color: #0056b3;
+.btn-category-slider:hover {
+    background-color: #9affff !important;
     transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(8, 129, 120, 0.4);
 }
 
-/* Left & Right Arrow Buttons */
-.nav-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.25);
-    backdrop-filter: blur(4px);
-    border: none;
-    color: white;
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    font-size: 1.25rem;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    z-index: 10;
+/* Enhancing navigation slider indicators controls styling */
+.carousel-indicators button {
+    width: 10px !important;
+    height: 10px !important;
+    border-radius: 50% !important;
+    margin: 0 5px !important;
+    background-color: #000000 !important;
 }
 
-.nav-btn:hover {
-    background: rgba(255, 255, 255, 0.45);
+.carousel-indicators .active {
+    background-color: #9affff !important;
+    width: 24px !important;
+    border-radius: 8px !important;
 }
 
-.prev-btn { left: 20px; }
-.next-btn { right: 20px; }
-
-/* Status Navigation Dots */
-.carousel-dots {
-    position: absolute;
-    bottom: 25px;
-    right: 40px;
-    display: flex;
-    gap: 8px;
-    z-index: 10;
-}
-
-.dot {
-    width: 10px;
-    height: 10px;
-    background-color: rgba(255, 255, 255, 0.4);
-    border-radius: 50%;
-    cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.dot.active {
-    background-color: #ffffff;
-    transform: scale(1.2); 
+/* Responsive Scaling wrapper boundaries adjustments for mobile viewports */
+@media (max-width: 768px) {
+    .carousel-bg-img {
+        height: 320px;
     }
+    .carousel-caption-custom h1 {
+        font-size: 28px !important;
+    }
+    .carousel-caption-custom p {
+        font-size: 14px !important;
+        max-width: 90%;
+    }
+}
     
 
 #Sale{

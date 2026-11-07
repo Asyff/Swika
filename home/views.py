@@ -31,7 +31,8 @@ from django.db.models import Q
 
 def home(request):
     available_products = Product.objects.filter(stock_quantity__gt=0)
-    return render(request, 'index.html', {'products': available_products})
+    all_categories = Category.objects.all()
+    return render(request, 'index.html', {'products': available_products, 'categories': all_categories })
 
 def about(request):
     return render(request, 'about.html', {})

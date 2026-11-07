@@ -57,17 +57,75 @@
   </div>
 </section>
 
-<section  id="Sale">
+<!-- Replaced static section with a Dynamic Categories Carousel Slider -->
+<section id="category-carousel-section" class="my-5">
+    <div class="container">
+        <!-- Section Heading -->
+        <div class="text-center mb-4">
+            <h2 style="font-weight: 700; color: #222;">Explore Our Collections</h2>
+            <p class="text-muted">Discover trending items across our handcrafted categories</p>
+        </div>
 
-     <h4>On Sale!</h4>
-    <h2>Tremendous Value!<h2>
-    <h1>On Our Products</h1>
-    <p>Save more with a discount of 20%!</p>
-    <button>Shop Now</button>
+        <!-- Bootstrap Carousel Container wrapper -->
+        <div id="categoryCarousel" class="carousel slide shadow-sm" data-bs-ride="carousel" style="border-radius: 12px; overflow: hidden;">
+            
+            <!-- Structural Carousel Indicators Dots -->
+            <div class="carousel-indicators">
+                {% for category in categories %}
+                <button type="button" data-bs-target="#categoryCarousel" data-bs-slide-to="{{ forloop.index0 }}" {% if forloop.first %}class="active" aria-current="true"{% endif %} aria-label="Slide {{ forloop.counter }}"></button>
+                {% endfor %}
+            </div>
 
-    </section>
+            <!-- Inner Sliders Processing Loop Block -->
+            <div class="carousel-inner">
+                {% if categories %}
+                    {% for category in categories %}
+                    <!-- Slide Item -->
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}" data-bs-interval="4000">
+                        <!-- Dynamic Background Image Container node -->
+                        <div class="carousel-bg-img" style="background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.5)), url('{% if category.image %}{{ category.image.url }}{% else %}{% static 'img/about/banner.png' %}{% endif %}');">
+                            
+                            <!-- Slide Descriptive Core Text Content Box Panel -->
+                            <div class="carousel-caption-custom text-center animate__animated animate__fadeInUp">
+                                <h4 style="color: #ffff; letter-spacing: 2px; text-transform: uppercase; font-size: 14px; font-weight: 600; margin-bottom: 10px;">Collection Spotlight</h4>
+                                <h1 style="font-weight: 800; font-size: 42px; margin-bottom: 15px; text-shadow: 0 2px 10px rgba(0,0,0,0.3);">{{ category.name }}</h1>
+                                <p style="font-size: 16px; color: #ddd; margin-bottom: 25px; max-width: 500px; margin-left: auto; margin-right: auto;">Explore premium merchandise and select items curated specifically for your destination layout.</p>
+                                <!-- Explicit Link Route straight to Category Summary breakdown catalog queries -->
+                                <a href="{% url 'category' category.name|slugify %}" class="btn btn-category-slider px-4 py-3">Shop Collection</a>
+                            </div>
 
-    
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <!-- Fallback placeholder slide if database categories table is empty -->
+                    <div class="carousel-item active">
+                        <div class="carousel-bg-img" style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.5)), url('{% static 'img/about/banner.png' %}');">
+                            <div class="carousel-caption-custom text-center">
+                                <h1 style="font-weight: 700;">No Categories Discovered</h1>
+                                <p class="text-muted">Please configure category elements inside your production Admin Portal panel.</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Left Navigation Slider Arrow Controller -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#categoryCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            
+            <!-- Right Navigation Slider Arrow Controller -->
+            <button class="carousel-control-next" type="button" data-bs-target="#categoryCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+
+        </div>
+    </div>
+</section>
+
 
     
 
