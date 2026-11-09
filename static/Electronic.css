@@ -254,74 +254,183 @@ color: #9affff;
     display: none;
 }
 
-.carousel-bg-img {
-    height: 420px;
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
+.vanilla-slider-section {
+    margin: 50px auto;
+    padding: 0 15px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.vanilla-slider-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.vanilla-slider-header h2 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #222222;
+    margin-bottom: 10px;
+}
+
+.vanilla-slider-viewport {
+    max-width: 1140px;
+    height: 440px;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.vanilla-slide-input {
+    display: none !important;
+}
+
+/* FIX: Convert track into an endless inline flex row with zero wrapping leaks */
+.vanilla-slider-track {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* FIX: Forces each slide card to take up exactly 100% of the viewport container frame */
+.vanilla-slide-frame {
+    width: 100%;
+    height: 100%;
+    flex-shrink: 0; /* CRITICAL: Prevents columns from compressing or folding inside row wraps */
+    position: relative; 
     display: flex;
     align-items: center;
     justify-content: center;
+    box-sizing: border-box;
+    background-color: #222222; /* Sleek slate backdrop if images are processing */
+}
+
+.vanilla-slide-img-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    z-index: 1;
+}
+
+.vanilla-slide-caption {
+    text-align: center;
+    color: #ffffff;
+    max-width: 600px;
+    padding: 0 20px;
     position: relative;
-    transition: all 0.5s ease-in-out;
+    z-index: 5;
 }
 
-.carousel-caption-custom {
+.vanilla-slide-caption h1 {
+    font-size: 44px;
+    font-weight: 800;
+    margin-bottom: 15px;
+}
+
+.vanilla-slide-btn {
+    background-color: #9affff;
     color: #000000;
-    z-index: 10;
-    padding: 20px;
-}
-
-/* Custom Interactive Theme Accent Call Button */
-.btn-category-slider {
-    background-color: #9affff !important;
-    color: #000000 !important;
-    border: none !important;
+    padding: 14px 28px;
     font-weight: 700;
-    font-size: 15px;
     text-transform: uppercase;
-    border-radius: 4px;
-    box-shadow: 0 4px 15px rgba(8, 129, 120, 0.3);
-    transition: all 0.3s ease;
     text-decoration: none;
+    border-radius: 4px;
     display: inline-block;
+    font-size: 14px;
+    position: relative;
+    z-index: 25 !important;
 }
 
-.btn-category-slider:hover {
-    background-color: #9affff !important;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(8, 129, 120, 0.4);
+/* ==========================================================================
+   DYNAMIC SLIDING SIBLING TRANSLATION SCALES
+   ========================================================================== */
+#v-slide-1:checked ~ .vanilla-slider-track { transform: translateX(0%); }
+#v-slide-2:checked ~ .vanilla-slider-track { transform: translateX(-100%); }
+#v-slide-3:checked ~ .vanilla-slider-track { transform: translateX(-200%); }
+#v-slide-4:checked ~ .vanilla-slider-track { transform: translateX(-300%); }
+#v-slide-5:checked ~ .vanilla-slider-track { transform: translateX(-400%); }
+
+/* ARROW CONTROLS LAYER HOOKS */
+.vanilla-arrow-controls {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    transform: translateY(-50%);
+    display: none;
+    justify-content: space-between;
+    padding: 0 25px;
+    box-sizing: border-box;
+    z-index: 15;
+    pointer-events: none;
 }
 
-/* Enhancing navigation slider indicators controls styling */
-.carousel-indicators button {
-    width: 10px !important;
-    height: 10px !important;
-    border-radius: 50% !important;
-    margin: 0 5px !important;
-    background-color: #000000 !important;
+#v-slide-1:checked ~ .slide-nav-1,
+#v-slide-2:checked ~ .slide-nav-2,
+#v-slide-3:checked ~ .slide-nav-3,
+#v-slide-4:checked ~ .slide-nav-4,
+#v-slide-5:checked ~ .slide-nav-5 {
+    display: flex;
 }
 
-.carousel-indicators .active {
-    background-color: #9affff !important;
-    width: 24px !important;
-    border-radius: 8px !important;
+.vanilla-arrow {
+    width: 45px;
+    height: 45px;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: background-color 0.2s, transform 0.2s;
 }
 
-/* Responsive Scaling wrapper boundaries adjustments for mobile viewports */
-@media (max-width: 768px) {
-    .carousel-bg-img {
-        height: 320px;
-    }
-    .carousel-caption-custom h1 {
-        font-size: 28px !important;
-    }
-    .carousel-caption-custom p {
-        font-size: 14px !important;
-        max-width: 90%;
-    }
+.vanilla-arrow:hover {
+    background-color: #9affff;
+    color: #000000;
 }
-    
+
+/* DOT CONTROLS LAYER INDICATORS */
+.vanilla-dots-controls {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 20;
+}
+
+.vanilla-dot {
+    width: 10px;
+    height: 10px;
+    background-color: rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+#v-slide-1:checked ~ .vanilla-dots-controls .dot-target-1,
+#v-slide-2:checked ~ .vanilla-dots-controls .dot-target-2,
+#v-slide-3:checked ~ .vanilla-dots-controls .dot-target-3,
+#v-slide-4:checked ~ .vanilla-dots-controls .dot-target-4,
+#v-slide-5:checked ~ .vanilla-dots-controls .dot-target-5 {
+    background-color: #9affff;
+    width: 24px;
+    border-radius: 6px;
+}
 
 #Sale{
     background-image: url(img/bag1.PNG);
@@ -1043,6 +1152,23 @@ footer .copyright{
     /* Ensure text description spacing rules parse softly */
     #productdetails .single-pro-details span {
         line-height: 22px;
+        font-size: 14px;
+    }
+
+
+    .vanilla-slider-viewport {
+        height: 340px;
+    }
+    .vanilla-slide-caption h1 {
+        font-size: 30px;
+    }
+    .vanilla-slide-caption p {
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
+    .vanilla-arrow {
+        width: 36px;
+        height: 36px;
         font-size: 14px;
     }
 

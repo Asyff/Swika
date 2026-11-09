@@ -81,14 +81,6 @@
         Rs. {% if product.sale_price > 0 %}{{ product.sale_price }}{% else %}{{ product.price }}{% endif %}
       </h3>
 
-      <select class="form-select mb-3" style="max-width: 150px; padding: 10px; border-radius: 4px;">
-         <option>Select Color</option>
-         <option>Blue</option>
-         <option>White</option>
-         <option>Black</option>
-         <option>Yellow</option>
-      </select>
-
       <div class="d-flex align-items-center gap-2 mb-4">
           <input type="number" value="1" id="qty-cart" min="1" max="{{ product.stock_quantity }}" class="form-control text-center" style="width: 70px; padding: 10px;">
           
@@ -177,9 +169,4 @@ $(document).ready(function() {
 });
 </script>
 
-<FollowUp>
-If you want, tell me if you need help with:
-* Setting up the **`ProductImage` Inline Model configurations** inside `admin.py` to upload multiple images at once.
-* Injecting a **"Related Products" recommendation row grid** at the bottom of this detail sheet.
-</FollowUp>
 {% endblock %}
