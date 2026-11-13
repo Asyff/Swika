@@ -1,4 +1,5 @@
 # home/models.py
+from django.utils import timezone
 from django.db import models
 import datetime
 from django.contrib.auth.models import User
@@ -25,6 +26,12 @@ class Product(models.Model):
     description = models.CharField(max_length=250, default='', blank=True, null=True)
     image = models.ImageField(upload_to='uploads/product/')
     stock_quantity = models.IntegerField(default=10, help_text="Available stock items count")
+    
+    # Add this field to flag trending items manually via Django Admin
+    is_popular = models.BooleanField(default=False, help_text="Check this box to feature it under 'Popular Bags' on the homepage.")
+    
+    # Add this field if you don't already have a timestamp field to sort by "New" automatically
+    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     
     # Active inventory/sale pricing controls
     is_sale = models.BooleanField(default=False)

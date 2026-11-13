@@ -23,21 +23,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-"""
+
 if os.environ.get('DEBUG', 'False').lower() in ['true', '1']:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-@$rn9^b)j108wc-c9a0p4zonh%v52cm@ch*5jqh!muf!5z79d5')
 else:
     SECRET_KEY = os.environ['SECRET_KEY']  # Will throw a KeyError if missing in production
     
-"""
+
 
     
-SECRET_KEY =  'django-insecure-@$rn9^b)j108wc-c9a0p4zonh%v52cm@ch*5jqh!muf!5z79d5'
+#SECRET_KEY =  'django-insecure-@$rn9^b)j108wc-c9a0p4zonh%v52cm@ch*5jqh!muf!5z79d5'
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-#DEBUG = os.environ.get('DEBUG', 'False') == 'True'
-DEBUG = 'True'
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+#DEBUG = 'True'
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.appliku.app', 'swika.appliku.app',  'swika.applikuapp.com', '.swika.com.np', 'swika.com.np', '://swika.com.np',]
 

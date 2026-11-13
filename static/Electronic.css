@@ -230,7 +230,7 @@ body{
 
 #navbar li a:hover, 
 #navbar li a.active {
-color: #9affff;
+color: #0e60bd;
 
 }
 
@@ -239,7 +239,7 @@ color: #9affff;
     content: "";
     width: 30%;
     height: 2px;
-    background: #9affff;
+    background: #0e60bd;
     position: absolute;
     bottom: -4px;
     left: 25px;
@@ -430,6 +430,37 @@ color: #9affff;
     background-color: #9affff;
     width: 24px;
     border-radius: 6px;
+}
+
+.product-image-wrapper {
+    width: 100%;
+    position: relative;
+    display: inline-block;
+}
+
+/* Float badge cleanly over the top left corner of individual catalog product cards */
+.store-sale-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background-color: #f34355; /* Vibrant operational alert red palette color */
+    color: #ffffff !important;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    border-radius: 4px;
+    z-index: 10;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.4);
+    animation: pulseBadgeStrobe 2s infinite;
+}
+
+/* Subtle attention-grabbing pulse effect */
+@keyframes pulseBadgeStrobe {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.04); box-shadow: 0 4px 12px rgba(220, 53, 69, 0.6); }
+    100% { transform: scale(1); }
 }
 
 #Sale{

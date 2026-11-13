@@ -9,7 +9,7 @@
     <ul id="navbar">
       <li><a href="{% url 'home' %}">Home</a></li>
       <li><a class="active" href="{% url 'category_summary' %}">Shop</a></li>
-      <li><a href="{% url 'blog' %}">Blog</a></li>
+     
       <li><a href="{% url 'about' %}">About Us</a></li>
       <li><a href="{% url 'contact' %}">Contact</a></li>
       
@@ -167,6 +167,34 @@ $(document).ready(function() {
         });
     });
 });
+
+function executeAddToCart(productSlug) {
+    let targetButton = $(`#add-cart-btn-${productSlug}`);
+    
+    // Prevent multi-click spamming instantly by freezing the button UI elements
+    targetButton.prop('disabled', true).addClass('loading-frozen-state');
+    
+    $.ajax({
+        type: 'POST',
+        url: '/cart/add/',
+        data: {
+            'product_slug': productSlug,
+            'csrfmiddlewaretoken': djangoCsrfToken,
+            'action': 'post'
+        },
+        success: function(response) {
+            // Update your navigation badge metrics totals dynamically
+            $('.nav-cart-badge-class').text(response.qty);
+            
+            // Re-enable button state seamlessly with a completion checkmark indicator
+            targetButton.prop('disabled', false).removeClass('loading-frozen-state');
+        },
+        error: function(xhr) {
+            console.error("Cart transaction handshake delayed. Retrying...");
+            targetButton.prop('disabled', false).removeClass('loading-frozen-state');
+        }
+    });
+}
 </script>
 
 {% endblock %}

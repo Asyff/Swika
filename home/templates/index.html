@@ -9,7 +9,7 @@
     <ul id="navbar">
       <li><a class="active" href="{% url 'home' %}">Home</a></li>
       <li><a href="{% url 'category_summary' %}">Shop</a></li>
-      <li><a href="{% url 'blog' %}">Blog</a></li>
+     
       <li><a href="{% url 'about' %}">About Us</a></li>
       <li><a href="{% url 'contact' %}">Contact</a></li>
       
@@ -127,78 +127,105 @@
     
 
     <section id="product1" class="section-p1">
-     
      <h2>Popular Bags</h2>
      
-
      <div class="product-container">
-
-     {% for product in products %}
-        <div class="product">
-            <img src="{{product.image.url}}" alt=""></img>
-            <div class="description">
-               <span>{{product.brand}}</span>
-               <a href ="{% url 'product' product.id %}"><h5>{{product.name}}<h5></a>
-             <div class="star">
-               <i class="fa fa-star" aria-hidden="true"></i>
-               <i class="fa fa-star" aria-hidden="true"></i>
-               <i class="fa fa-star" aria-hidden="true"></i>
-               <i class="fa fa-star" aria-hidden="true"></i>
-               <i class="fa fa-star" aria-hidden="true"></i>
-             </div>
-
-            <h4>{{product.price}}</h4>
-
-             </div>
-
-            <a href="/add_to_cart/{{product.slug}}"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
-
-          </div>
-     {% endfor %}
-       
-
-       
-     </div>
+         {% if popular_products %}
+             {% for product in popular_products %}
+                <div class="product">
     
+    <!-- 1. IMAGE WRAPPER LAYER: Crucial for absolute overlay badge positioning -->
+    <div class="product-image-wrapper" style="position: relative; overflow: hidden;">
+        
+        <!-- NEW DYNAMIC SALE BADGE GUARD BLOCK -->
+        {% if product.sale_price and product.sale_price > 0 and product.sale_price < product.price %}
+            <span class="store-sale-badge">Sale</span>
+        {% endif %}
+        
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid">
+    </div>
 
-    </section >
+    <div class="description">
+        <span>{{ product.brand }}</span>
+        <a href="{% url 'product' product.id %}"><h5>{{ product.name }}</h5></a>
+        <div class="star">
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <i class="fa fa-star" aria-hidden="true"></i>
+        </div>
+        
+        <!-- 2. PRICE RENDERING ENGINE: Striking out original pricing if item is on sale -->
+        {% if product.sale_price and product.sale_price > 0 and product.sale_price < product.price %}
+            <h4>
+                <span class="text-decoration-line-through text-muted small me-2" style="font-size: 13px; text-decoration: line-through;">Rs. {{ product.price }}</span>
+                <span style="color: #0979f8; font-weight: 700;">Rs. {{ product.sale_price }}</span>
+            </h4>
+        {% else %}
+            <h4 style="color: #087bff; font-weight: 700;">Rs. {{ product.price }}</h4>
+        {% endif %}
+    </div>
+    
+    
+</div>
+             {% endfor %}
+         {% else %}
+             <p class="text-muted text-center w-100 py-3">No popular products featured yet. Log into admin to flag trending bags!</p>
+         {% endif %}
+     </div>
+    </section>
 
-     <section id="product1" class="section-p1">
-     
+    <!-- ==================== NEW PRODUCTS SECTION ==================== -->
+    <section id="product1" class="section-p1">
      <h2>New Products</h2>
      
-
      <div class="product-container">
-
-     {% for product in products %}
-        <div class="product">
-            <img src="{{product.image.url}}" alt=""></img>
-            <div class="description">
-               <span>{{new.brand}}</span>
-              <a href ="{% url 'product' product.id %}"> <h5>{{product.name}}<h5></a>
-             <div class="star">
-             <i class="fa fa-star" aria-hidden="true"></i>
-             <i class="fa fa-star" aria-hidden="true"></i>
-             <i class="fa fa-star" aria-hidden="true"></i>
-             <i class="fa fa-star" aria-hidden="true"></i>
-             <i class="fa fa-star" aria-hidden="true"></i>
-             </div>
-
-            <h4>{{product.price}}</h4>
-
-             </div>
-
-            <a href="/add_to_cart/{{product.slug}}"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
-
-          </div>
-     {% endfor %}
-       
-
-       
-     </div>
+         {% if new_products %}
+             {% for product in new_products %}
+                <div class="product">
     
+    <!-- 1. IMAGE WRAPPER LAYER: Crucial for absolute overlay badge positioning -->
+    <div class="product-image-wrapper" style="position: relative; overflow: hidden;">
+        
+        <!-- NEW DYNAMIC SALE BADGE GUARD BLOCK -->
+        {% if product.sale_price and product.sale_price > 0 and product.sale_price < product.price %}
+            <span class="store-sale-badge">Sale</span>
+        {% endif %}
+        
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid">
+    </div>
 
-    </section >
+    <div class="description">
+        <span>{{ product.brand }}</span>
+        <a href="{% url 'product' product.id %}"><h5>{{ product.name }}</h5></a>
+        <div class="star">
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <i class="fa fa-star" aria-hidden="true"></i>
+        </div>
+        
+        <!-- 2. PRICE RENDERING ENGINE: Striking out original pricing if item is on sale -->
+        {% if product.sale_price and product.sale_price > 0 and product.sale_price < product.price %}
+            <h4>
+                <span class="text-decoration-line-through text-muted small me-2" style="font-size: 13px; text-decoration: line-through;">Rs. {{ product.price }}</span>
+                <span style="color: #088178; font-weight: 700;">Rs. {{ product.sale_price }}</span>
+            </h4>
+        {% else %}
+            <h4 style="color: #088178; font-weight: 700;">Rs. {{ product.price }}</h4>
+        {% endif %}
+    </div>
+    
+    
+</div>
+             {% endfor %}
+         {% else %}
+             <p class="text-muted text-center w-100 py-3">No items found in your catalog.</p>
+         {% endif %}
+     </div>
+    </section>
     
     
 

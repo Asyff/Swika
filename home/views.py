@@ -32,7 +32,13 @@ from django.db.models import Q
 def home(request):
     available_products = Product.objects.filter(stock_quantity__gt=0)
     all_categories = Category.objects.all()
-    return render(request, 'index.html', {'products': available_products, 'categories': all_categories })
+    popular_products = Product.objects.filter(stock_quantity__gt=0, is_popular=True).order_by('-id')[:8]
+    if not request.session.session_key:
+        request.session.create()
+    
+    # 2. New Products Section: Sort by newest registration timestamp dynamically
+    new_products = Product.objects.filter(stock_quantity__gt=0).order_by('-created_at')[:8]
+    return render(request, 'index.html', {'popular_products': popular_products, 'new_products': new_products, 'categories': all_categories })
 
 def about(request):
     return render(request, 'about.html', {})
